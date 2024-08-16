@@ -1,0 +1,14 @@
+#entry game.main
+out\handlers.obj
+out\os.obj
+out\util.obj
+out\fakeos.obj
+out\gutil.obj
+out\mathutil.obj
+out\text.obj
+out\forth.obj
+out\ivt.obj
+out\game.obj
+out\dma.obj
+out\terminal.obj
+out\fs.obj

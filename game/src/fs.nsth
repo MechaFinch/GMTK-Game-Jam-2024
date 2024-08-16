@@ -1,0 +1,9 @@
+
+--
+-- fs
+-- Forth Source
+-- Compiles forth source files
+--
+
+-- Compile source code
+external function _fs.compile of none returns none;

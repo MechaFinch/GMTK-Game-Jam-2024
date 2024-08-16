@@ -1,0 +1,35 @@
+
+--
+-- GMTK Game Jam 2024
+-- Game & Entry Point
+--
+
+-- From library
+library _forth from "../forth/kernelv2/src/forth";
+library _os from "fakeos/os";
+library _util;
+
+-- From game
+library _fs;
+
+define FORTH_PARAM_STACK_SIZE is 4096;
+define FORTH_LOCAL_STACK_SIZE is 4096;
+define FORTH_USER_DICT_SIZE is 65536;
+define FORTH_USER_DICT_PAD is 64;
+define FORTH_STACK_PAD is 64;
+
+function main of none begin
+	-- Initialize
+	call _os.init with none;
+	call _forth.interop_init with FORTH_PARAM_STACK_SIZE, FORTH_LOCAL_STACK_SIZE, FORTH_USER_DICT_SIZE, FORTH_USER_DICT_PAD, FORTH_STACK_PAD;
+	call _fs.compile with none;
+	
+	-- Hello World
+	constant str is string gets "hello";
+	call _forth.interop_ncall with to str, sizeof str;
+	
+	-- Safety loop
+	while 1 do
+		call _util.halt with none;
+	end while
+end function
