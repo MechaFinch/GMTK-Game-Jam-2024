@@ -1,0 +1,9 @@
+
+	List of forth words
+
+TERMINAL-BOUNDS ( min-x min-y max-x max-y -- )
+	Sets the boundaries of the terminal
+	min-x must be <= max-x
+	min-y must be <= max-y
+	min-x, max-x must be in [0, 39]
+	min-y, max-y must be in [0, 29]
