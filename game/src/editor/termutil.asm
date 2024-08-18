@@ -138,3 +138,15 @@ set_color:
 	
 	POPW BP
 	RET
+
+; none set_enabled(u8 enabled)
+; Sets enabled
+set_enabled:
+	PUSH BP
+	MOVW BP, SP
+	
+	MOV AL, [BP + 8]
+	MOV [term.enabled], AL
+	
+	POPW BP
+	RET

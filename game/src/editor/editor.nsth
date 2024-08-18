@@ -35,7 +35,7 @@ external function _editor.create_region of u8 sox, u8 soy, u8 sw, u8 sh, u16 max
 -- Text editing stops when the user presses the tab key
 -- If edit is true, editing allowed
 -- If edit is fase, only navigation allowed
-external function _editor.edit_region of text_region pointer region, boolean edit returns none;
+external function _editor.edit_region of text_region pointer region, boolean edit returns u8;
 
 -- Render an editing region
 external function _editor.draw_region of text_region pointer region returns none;

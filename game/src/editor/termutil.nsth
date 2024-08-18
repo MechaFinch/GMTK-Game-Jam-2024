@@ -30,3 +30,6 @@ external function _termutil.set_bgc of u8 c returns none;
 
 -- set foreground/background
 external function _termutil.set_color of u8 fgc, u8 bgc returns none;
+
+-- set enaled
+external function _termutil.set_enabled of u8 enabled returns none;

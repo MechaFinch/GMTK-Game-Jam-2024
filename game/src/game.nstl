@@ -6,13 +6,16 @@
 
 -- From library
 library _forth from "../forth/kernelv2/src/forth";
+library _gutil from "simvideo/gutil";
 library _os from "fakeos/os";
 library _sprites from "simvideo/sprites";
 library _util;
 
 -- From game
 library _fs;
+library _ui;
 library _spritedata from "../resources/spritedata";
+library _palette from "../resources/palette";
 library _editor from "editor/editor";
 
 define STDIN is 0;
@@ -30,25 +33,45 @@ function main of none begin
 	call _os.change_file_attr with 0, 0b000;	-- disable input echo for fully custom key handling
 	call _forth.interop_init with FORTH_PARAM_STACK_SIZE, FORTH_LOCAL_STACK_SIZE, FORTH_USER_DICT_SIZE, FORTH_USER_DICT_PAD, FORTH_STACK_PAD;
 	call _fs.compile with none;
+	call _gutil.set_palette with to _palette.p1;
+	
+	-- Init text regions
+	variable ui_data is interface_data gets interface_data of
+		-- code editor text areas
+		region_code_editor gets (call _editor.create_region with 2, 2, 14, 24, 128),
+		region_dictionary gets (call _editor.create_region with 18, 2, 19, 12, 20),
+		region_notes gets (call _editor.create_region with 18, 15, 19, 11, 32)
+	end structure;
+	
+	constant str_1 is string gets "Reference text 1";
+	constant str_2 is string gets "Reference text 2";
+	constant str_3 is string gets "Reference text 3";
+	constant str_4 is string gets "Reference text 4";
+	call _util.memcopy with to str_1, ui_data.region_dictionary.buffer + (0 * 20), sizeof str_1;
+	call _util.memcopy with to str_2, ui_data.region_dictionary.buffer + (1 * 20), sizeof str_2;
+	call _util.memcopy with to str_3, ui_data.region_dictionary.buffer + (2 * 20), sizeof str_3;
+	call _util.memcopy with to str_4, ui_data.region_dictionary.buffer + (12 * 20), sizeof str_4;
+	
+	call _ui.run_interface with to ui_data;
 	
 	-- Hello World
-	constant str_hello is string gets "hello";
-	call _forth.interop_ncall with to str_hello, sizeof str_hello;
+	--constant str_hello is string gets "hello";
+	--call _forth.interop_ncall with to str_hello, sizeof str_hello;
 	
 	-- Editor testing
-	variable test_region is text_region pointer gets (call _editor.create_region with 5, 5, 15, 10, 100);
-	
-	constant str_up_1 is string gets "There is text";
-	constant str_up_2 is string gets "up here!";
-	constant str_down_1 is string gets "There is also";
-	constant str_down_2 is string gets "text down here!";
-	
-	call _util.memcopy with to str_up_1, test_region.buffer, sizeof str_up_1;
-	call _util.memcopy with to str_up_2, test_region.buffer + 16, 8;
-	call _util.memcopy with to str_down_1, test_region.buffer + 160, sizeof str_down_1;
-	call _util.memcopy with to str_down_2, test_region.buffer + 176, sizeof str_down_2;
-	
-	call _editor.edit_region with test_region, true;
+	--variable test_region is text_region pointer gets (call _editor.create_region with 5, 5, 15, 10, 100);
+	--
+	--constant str_up_1 is string gets "There is text";
+	--constant str_up_2 is string gets "up here!";
+	--constant str_down_1 is string gets "There is also";
+	--constant str_down_2 is string gets "text down here!";
+	--
+	--call _util.memcopy with to str_up_1, test_region.buffer, sizeof str_up_1;
+	--call _util.memcopy with to str_up_2, test_region.buffer + 16, 8;
+	--call _util.memcopy with to str_down_1, test_region.buffer + 160, sizeof str_down_1;
+	--call _util.memcopy with to str_down_2, test_region.buffer + 176, sizeof str_down_2;
+	--
+	--call _editor.edit_region with test_region, true;
 	
 	-- Safety loop
 	while 1 do

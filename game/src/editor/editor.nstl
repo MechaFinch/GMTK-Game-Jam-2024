@@ -15,10 +15,14 @@ define STDOUT is 1;
 define COLOR_WHITE is 0xFF;
 define COLOR_BLACK is 0x01;
 
+define KEY_NEWLINE is 0x0A;
+define KEY_TAB is 0x09;
 define KEY_LEFT is 0x15;
 define KEY_UP is 0x16;
 define KEY_RIGHT is 0x17;
 define KEY_DOWN is 0x18;
+define KEY_ESCAPE is 0x1B;
+define KEY_DELETE is 0x7F;
 
 -- Create a text_region object
 function create_region of u8 sox, u8 soy, u8 sw, u8 sh, u16 max_lines returns text_region pointer begin
@@ -37,8 +41,8 @@ function create_region of u8 sox, u8 soy, u8 sw, u8 sh, u16 max_lines returns te
 	region.top_line gets 0;
 	region.cursor_x gets 0;
 	region.cursor_y gets 0;
-	region.foreground_color gets COLOR_WHITE;
-	region.background_color gets COLOR_BLACK;
+	region.foreground_color gets COLOR_BLACK;
+	region.background_color gets COLOR_WHITE;
 	region.buffer gets buffer;
 	
 	-- Initialize buffer
@@ -58,7 +62,7 @@ end function
 
 -- Run text editing for the given region
 -- Text editing stops when the user presses the tab key
-function edit_region of text_region pointer region, boolean edit begin
+function edit_region of text_region pointer region, boolean edit returns u8 begin
 	-- render the region
 	call draw_region with region;
 	
@@ -78,101 +82,115 @@ function edit_region of text_region pointer region, boolean edit begin
 		
 		-- get input
 		call _os.read_file with STDIN, 1, to input_buffer;
-		variable shift is boolean gets ((input_buffer index 0) and 0x80) != 0;
+		variable shift is u8 gets (input_buffer index 0) and 0x80;
 		variable input is u8 gets (input_buffer index 0) and 0x7F;
 		
 		if input = KEY_LEFT then
 			-- Move cursor left
 			call unhighlight with region, abs_x, abs_y, c;
-			if region.cursor_x = 0 then
-				-- wrap
-				region.cursor_x gets region.screen_width - 1;
-				
-				-- Move cursor up
-				if region.cursor_y = 0 then
-					-- If at top of screen, scroll
-					if region.top_line != 0 then
-						region.top_line gets region.top_line - 1;
-						call draw_region with region;
-					end if
-				else
-					region.cursor_y gets region.cursor_y - 1;
-				end if
-			else
-				region.cursor_x gets region.cursor_x - 1;
-			end if
+			call move_cursor_left with region;
 		elseif input = KEY_RIGHT then
 			-- Move cursor right
 			call unhighlight with region, abs_x, abs_y, c;
-			if region.cursor_x < (region.screen_width - 1) then
-				region.cursor_x gets region.cursor_x + 1;
-			else
-				-- wrap
-				region.cursor_x gets 0;
-				
-				-- Move cursor down
-				if region.cursor_y < (region.screen_height - 1) then
-					region.cursor_y gets region.cursor_y + 1;
-				else
-					-- If at bottom of screen, scroll
-					if region.top_line < (region.max_lines - 1) then
-						region.top_line gets region.top_line + 1;
-						call draw_region with region;
-					end if
-				end if
-			end if
+			call move_cursor_right with region;
 		elseif input = KEY_UP then
 			-- Move cursor up
-			if region.cursor_y = 0 then
-				-- If at top of screen, scroll
-				if region.top_line != 0 then
-					region.top_line gets region.top_line - 1;
-					call draw_region with region;
-				end if
-			else
-				call unhighlight with region, abs_x, abs_y, c;
-				region.cursor_y gets region.cursor_y - 1;
-			end if
+			call unhighlight with region, abs_x, abs_y, c;
+			call move_cursor_up with region;
 		elseif input = KEY_DOWN then
 			-- Move cursor down
-			if region.cursor_y < (region.screen_height - 1) then
-				call unhighlight with region, abs_x, abs_y, c;
-				region.cursor_y gets region.cursor_y + 1;
-			else
-				-- If at bottom of screen, scroll
-				if region.top_line < (region.max_lines - 1) then
-					region.top_line gets region.top_line + 1;
-					call draw_region with region;
-				end if
-			end if
-		elseif (input >= 0x20) and (input < 0x7F) then
+			call unhighlight with region, abs_x, abs_y, c;
+			call move_cursor_down with region;
+		elseif (input = KEY_TAB) or (input = KEY_ESCAPE) then
+			-- change window
+			input gets input or shift;
+			return input;
+		elseif (input >= 0x20) then
 			-- not a control character, place it
 			region.buffer index i gets input;
 			
 			-- Move cursor right
 			call unhighlight with region, abs_x, abs_y, input;
-			if region.cursor_x < (region.screen_width - 1) then
-				region.cursor_x gets region.cursor_x + 1;
-			else -- and wrap
-				region.cursor_x gets 0;
-				
-				-- Move cursor down
-				if region.cursor_y < (region.screen_height - 1) then
-					region.cursor_y gets region.cursor_y + 1;
-				else
-					-- If at bottom of screen, scroll
-					if region.top_line < (region.max_lines - 1) then
-						region.top_line gets region.top_line + 1;
-						call draw_region with region;
-					end if
-				end if
-			end if
+			call move_cursor_right with region;
 		end if
 	else
 		-- Naviagtion only
-		call _util.halt with none;
+		-- get input
+		call _os.read_file with STDIN, 1, to input_buffer;
+		variable shift is u8 gets (input_buffer index 0) and 0x80;
+		variable input is u8 gets (input_buffer index 0) and 0x7F;
+		
+		if input = KEY_UP then
+			-- Move window up
+			call move_window_up with region;
+		elseif input = KEY_DOWN then
+			-- Move window down
+			call move_window_down with region;
+		elseif (input = KEY_TAB) or (input = KEY_ESCAPE) then
+			-- change window
+			input gets input or shift;
+			return input;
+		end if
 	end if
 	end while
+end function
+
+function move_cursor_up of text_region pointer region returns none begin
+	if region.cursor_y = 0 then
+		-- scroll if possible when at top
+		call move_window_up with region;
+	else
+		-- just decrement if not
+		region.cursor_y gets region.cursor_y - 1;
+	end if
+end function
+
+function move_window_up of text_region pointer region returns none begin
+	-- scroll up if possible
+	if region.top_line != 0 then
+		region.top_line gets region.top_line - 1;
+		call draw_region with region;
+	end if
+end function
+
+function move_cursor_down of text_region pointer region returns none begin
+	if region.cursor_y < (region.screen_height - 1) then
+		-- space available, just move
+		region.cursor_y gets region.cursor_y + 1;
+	else
+		-- bottom of screen, scroll if possible
+		call move_window_down with region;
+	end if
+end function
+
+function move_window_down of text_region pointer region returns none begin
+	-- scroll down if possible
+	if region.top_line < (region.max_lines - 1) then
+		region.top_line gets region.top_line + 1;
+		call draw_region with region;
+	end if
+end function
+
+function move_cursor_left of text_region pointer region returns none begin
+	if region.cursor_x = 0 then
+		-- no space, wrap back
+		region.cursor_x gets region.screen_width - 1;
+		call move_cursor_up with region;
+	else
+		-- space available, just move
+		region.cursor_x gets region.cursor_x - 1;
+	end if
+end function
+
+function move_cursor_right of text_region pointer region returns none begin
+	if region.cursor_x < (region.screen_width - 1) then
+		-- space available, just move
+		region.cursor_x gets region.cursor_x + 1;
+	else
+		-- no space, wrap
+		region.cursor_x gets 0;
+		call move_cursor_down with region;
+	end if
 end function
 
 function highlight of text_region pointer region, u8 ax, u8 ay, u8 c returns none begin

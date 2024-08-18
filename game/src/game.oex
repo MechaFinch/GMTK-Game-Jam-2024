@@ -2,9 +2,10 @@
 out\handlers.obj
 out\editor.obj
 out\os.obj
+out\ui.obj
+out\gutil.obj
 out\util.obj
 out\fakeos.obj
-out\gutil.obj
 out\sprites.obj
 out\spritedata.obj
 out\mathutil.obj
@@ -14,5 +15,6 @@ out\ivt.obj
 out\game.obj
 out\terminal.obj
 out\dma.obj
+out\palettes.obj
 out\fs.obj
 out\termutil.obj
