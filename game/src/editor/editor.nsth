@@ -1,0 +1,53 @@
+
+--
+-- Editor
+-- Text Editing
+--
+
+-- Information about an editable text area
+-- The buffer is (max_lines * (screen_width + 1)) bytes.
+-- Each line in the buffer is filled with (screen_width) spaces followed by a newline
+type text_region is structure of
+	screen_origin_x is u8,	-- terminal min_x when editing
+	screen_origin_y is u8,	-- terminal min_y when editing
+	screen_width is u8,		-- width in characters
+	screen_height is u8,	-- height in characters
+	max_lines is u16,		-- maximum number of lines
+	
+	top_line is u16,		-- line number of the top line of the editing region
+	cursor_x is u8,			-- cursor position in editing region
+	cursor_y is u8,
+	
+	foreground_color is u8,
+	background_color is u8,
+	
+	buffer is u8 pointer,	-- text data area
+end type
+
+type xy_pair is structure of
+	x is u8, y is u8
+end type
+
+-- Creates a text_region object
+external function _editor.create_region of u8 sox, u8 soy, u8 sw, u8 sh, u16 max_lines returns text_region pointer;
+
+-- Run text editing for the given region
+-- Text editing stops when the user presses the tab key
+-- If edit is true, editing allowed
+-- If edit is fase, only navigation allowed
+external function _editor.edit_region of text_region pointer region, boolean edit returns u8;
+
+-- Render an editing region
+external function _editor.draw_region of text_region pointer region returns none;
+
+-- Set terminal settings to match those of a region
+external function _editor.set_term_area of text_region pointer region returns none;
+
+-- Get the index of the cursor in the buffer
+external function _editor.get_index of text_region pointer region returns u16;
+
+-- Get the index of (x, y) in the buffer
+external function _editor.get_index_of of text_region pointer region, u8 x, u8 y returns u16;
+
+-- Get character at screen position
+external function _editor.get_char_at of text_region pointer region, u8 x, u8 y returns u8;

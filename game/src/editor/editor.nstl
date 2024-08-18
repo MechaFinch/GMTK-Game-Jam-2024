@@ -1,0 +1,268 @@
+
+--
+-- Editor
+-- Text Editing
+--
+
+library _termutil;
+
+library _os from "fakeos/os";
+library _util;
+
+define STDIN is 0;
+define STDOUT is 1;
+
+define COLOR_WHITE is 0xFF;
+define COLOR_BLACK is 0x01;
+
+define KEY_NEWLINE is 0x0A;
+define KEY_TAB is 0x09;
+define KEY_LEFT is 0x15;
+define KEY_UP is 0x16;
+define KEY_RIGHT is 0x17;
+define KEY_DOWN is 0x18;
+define KEY_ESCAPE is 0x1B;
+define KEY_DELETE is 0x7F;
+
+-- Create a text_region object
+function create_region of u8 sox, u8 soy, u8 sw, u8 sh, u16 max_lines returns text_region pointer begin
+	-- determine buffer size
+	variable buff_size is u16 gets max_lines * ((sw as u16) + 1);
+	
+	-- allocate region and buffer
+	variable region is text_region pointer gets (call _os.malloc with sizeof text_region);
+	variable buffer is u8 pointer gets (call _os.malloc with buff_size as u32);
+	
+	region.screen_origin_x gets sox;
+	region.screen_origin_y gets soy;
+	region.screen_width gets sw;
+	region.screen_height gets sh;
+	region.max_lines gets max_lines;
+	region.top_line gets 0;
+	region.cursor_x gets 0;
+	region.cursor_y gets 0;
+	region.foreground_color gets COLOR_BLACK;
+	region.background_color gets COLOR_WHITE;
+	region.buffer gets buffer;
+	
+	-- Initialize buffer
+	variable i is u16 gets 0;
+	for ln is u16 gets 0; ln < max_lines; ln gets ln + 1 do
+		for j is u16 gets 0; j < sw as u16; j gets j + 1 do
+			buffer index i gets 0x20;
+			i gets i + 1;
+		end for
+		
+		buffer index i gets 0x0A;
+		i gets i + 1;
+	end for
+	
+	return region;
+end function
+
+-- Run text editing for the given region
+-- Text editing stops when the user presses the tab key
+function edit_region of text_region pointer region, boolean edit returns u8 begin
+	-- render the region
+	call draw_region with region;
+	
+	variable input_buffer is u8 array size 2;
+	
+	-- Loop
+	while true do
+	if edit then
+		-- Editing
+		-- highlight the cursor
+		variable i is u16 gets (call get_index with region);
+		variable c is u8 gets region.buffer index i;
+		variable abs_x is u8 gets region.cursor_x + region.screen_origin_x;
+		variable abs_y is u8 gets region.cursor_y + region.screen_origin_y;
+		
+		call highlight with region, abs_x, abs_y, c;
+		
+		-- get input
+		call _os.read_file with STDIN, 1, to input_buffer;
+		variable shift is u8 gets (input_buffer index 0) and 0x80;
+		variable input is u8 gets (input_buffer index 0) and 0x7F;
+		
+		if input = KEY_LEFT then
+			-- Move cursor left
+			call unhighlight with region, abs_x, abs_y, c;
+			call move_cursor_left with region;
+		elseif input = KEY_RIGHT then
+			-- Move cursor right
+			call unhighlight with region, abs_x, abs_y, c;
+			call move_cursor_right with region;
+		elseif input = KEY_UP then
+			-- Move cursor up
+			call unhighlight with region, abs_x, abs_y, c;
+			call move_cursor_up with region;
+		elseif input = KEY_DOWN then
+			-- Move cursor down
+			call unhighlight with region, abs_x, abs_y, c;
+			call move_cursor_down with region;
+		elseif (input = KEY_TAB) or (input = KEY_ESCAPE) then
+			-- change window
+			input gets input or shift;
+			return input;
+		elseif (input >= 0x20) then
+			-- not a control character, place it
+			region.buffer index i gets input;
+			
+			-- Move cursor right
+			call unhighlight with region, abs_x, abs_y, input;
+			call move_cursor_right with region;
+		end if
+	else
+		-- Naviagtion only
+		-- get input
+		call _os.read_file with STDIN, 1, to input_buffer;
+		variable shift is u8 gets (input_buffer index 0) and 0x80;
+		variable input is u8 gets (input_buffer index 0) and 0x7F;
+		
+		if input = KEY_UP then
+			-- Move window up
+			call move_window_up with region;
+		elseif input = KEY_DOWN then
+			-- Move window down
+			call move_window_down with region;
+		elseif (input = KEY_TAB) or (input = KEY_ESCAPE) then
+			-- change window
+			input gets input or shift;
+			return input;
+		end if
+	end if
+	end while
+end function
+
+function move_cursor_up of text_region pointer region returns none begin
+	if region.cursor_y = 0 then
+		-- scroll if possible when at top
+		call move_window_up with region;
+	else
+		-- just decrement if not
+		region.cursor_y gets region.cursor_y - 1;
+	end if
+end function
+
+function move_window_up of text_region pointer region returns none begin
+	-- scroll up if possible
+	if region.top_line != 0 then
+		region.top_line gets region.top_line - 1;
+		call draw_region with region;
+	end if
+end function
+
+function move_cursor_down of text_region pointer region returns none begin
+	if region.cursor_y < (region.screen_height - 1) then
+		-- space available, just move
+		region.cursor_y gets region.cursor_y + 1;
+	else
+		-- bottom of screen, scroll if possible
+		call move_window_down with region;
+	end if
+end function
+
+function move_window_down of text_region pointer region returns none begin
+	-- scroll down if possible
+	if region.top_line < (region.max_lines - 1) then
+		region.top_line gets region.top_line + 1;
+		call draw_region with region;
+	end if
+end function
+
+function move_cursor_left of text_region pointer region returns none begin
+	if region.cursor_x = 0 then
+		-- no space, wrap back
+		region.cursor_x gets region.screen_width - 1;
+		call move_cursor_up with region;
+	else
+		-- space available, just move
+		region.cursor_x gets region.cursor_x - 1;
+	end if
+end function
+
+function move_cursor_right of text_region pointer region returns none begin
+	if region.cursor_x < (region.screen_width - 1) then
+		-- space available, just move
+		region.cursor_x gets region.cursor_x + 1;
+	else
+		-- no space, wrap
+		region.cursor_x gets 0;
+		call move_cursor_down with region;
+	end if
+end function
+
+function highlight of text_region pointer region, u8 ax, u8 ay, u8 c returns none begin
+	call _termutil.set_color with region.background_color, region.foreground_color;
+	call _termutil.set_pos_direct with ax, ay;
+	call _termutil.print_char with c;
+end function
+
+function unhighlight of text_region pointer region, u8 ax, u8 ay, u8 c returns none begin
+	call _termutil.set_color with region.foreground_color, region.background_color;
+	call _termutil.set_pos_direct with ax, ay;
+	call _termutil.print_char with c;
+end function
+
+
+
+-- Get the index of the cursor in the buffer
+function get_index of text_region pointer region returns u16 begin
+	variable line is u16 gets region.top_line + (region.cursor_y as u16);
+	return (line * (region.screen_width as u16 + 1)) + (region.cursor_x as u16);
+end function
+
+
+
+-- Get the index of (x, y) in the buffer
+function get_index_of of text_region pointer region, u8 x, u8 y returns u16 begin
+	variable line is u16 gets region.top_line + (y as u16);
+	return (line * (region.screen_width as u16 + 1)) + (x as u16);
+end function
+
+
+
+-- Get character at screen position
+function get_char_at of text_region pointer region, u8 x, u8 y returns u8 begin
+	return region.buffer index (call get_index_of with region, x, y);
+end function
+
+
+
+-- Render an editing region
+function draw_region of text_region pointer region begin
+	call set_term_area with region;
+	call _termutil.set_pos with 0, 0;
+	
+	-- starting index 
+	variable ln is u16 gets region.top_line;
+	variable i is u16 gets ln * (region.screen_width as u16 + 1);
+	variable y is u8 gets 0;
+	
+	-- for each line
+	while (y < region.screen_height) as u16 and (ln < region.max_lines) do
+		-- print the line
+		call _os.write_file with STDOUT, region.screen_width as u32, region.buffer + (i as u32);
+		
+		-- increment
+		i gets i + region.screen_width as u16 + 1;
+		ln gets ln + 1;
+		y gets y + 1;
+	end while
+	
+	-- send cursor to current position
+	call _termutil.set_pos with region.cursor_x + region.screen_origin_x, region.cursor_y + region.screen_origin_y;
+end function
+
+
+
+-- Set terminal settings to match those of a region
+function set_term_area of text_region pointer region begin
+	call _termutil.set_color with region.foreground_color, region.background_color;
+	call _termutil.set_term_bounds with 
+		region.screen_origin_x,
+		region.screen_origin_y,
+		region.screen_origin_x + region.screen_width - 1,
+		region.screen_origin_y + region.screen_height;
+end function

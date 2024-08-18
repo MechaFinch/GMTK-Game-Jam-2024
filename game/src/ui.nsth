@@ -1,0 +1,36 @@
+
+--
+-- User Interface
+--
+-- Each scene shows the view and handles input. When a user action causes a screen switch, the function
+-- returns the ID of the scene to switch to.
+--
+-- Scene IDs:
+--	Main menu	0
+--	Camera		1
+--	Editor		2
+--	Help		3
+--
+
+library _editor from "editor/editor";
+
+type interface_data is structure of
+	region_code_editor is text_region pointer,
+	region_dictionary is text_region pointer,
+	region_notes is text_region pointer
+end type
+
+-- Run the interface
+external function _ui.run_interface of interface_data pointer ui_data returns none;
+
+-- Run the editor interface
+external function _ui.scene_editor of interface_data pointer ui_data returns u8;
+
+-- Run the camera interface
+external function _ui.scene_camera of interface_data pointer ui_data returns u8;
+
+-- Show the main menu
+external function _ui.scene_menu of interface_data pointer ui_data returns u8;
+
+-- Show the help menu
+external function _ui.scene_help of interface_data pointer ui_data returns u8;

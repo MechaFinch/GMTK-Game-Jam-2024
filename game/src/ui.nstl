@@ -1,0 +1,182 @@
+
+--
+-- User Interface
+--
+
+library _sprites from "simvideo/sprites";
+
+library _spritedata from "../resources/spritedata";
+
+define ID_MAIN_MENU is 0;
+define ID_CAMERA is 1;
+define ID_EDITOR is 2;
+define ID_HELP is 3;
+
+define WINDOW_CODE_EDITOR is 0;
+define WINDOW_DICTIONARY is 1;
+define WINDOW_NOTES is 2;
+define WINDOW_NAVIGATION is 3;
+
+define COLOR_BLACK is 1;
+define COLOR_WHITE is 0xFF;
+
+define COLOR_BG_ACTIVE is 6;
+define COLOR_BG_INACTIVE is 5;
+
+define EDITOR_CODE_X is 16;
+define EDITOR_CODE_Y is 16;
+define EDITOR_DICTIONARY_X is 144;
+define EDITOR_DICTIONARY_Y is 16;
+define EDITOR_NOTES_X is 144;
+define EDITOR_NOTES_Y is 120;
+
+define KEY_ESCAPE is 0x1B;
+define KEY_TAB is 0x09;
+
+-- Initialize & run the interface
+function run_interface of interface_data pointer ui_data returns none begin
+	variable next_scene is u8 gets ID_EDITOR;
+	
+	while true do
+		if next_scene = ID_MAIN_MENU then
+			next_scene gets (call scene_menu with ui_data);
+		elseif next_scene = ID_CAMERA then
+			next_scene gets (call scene_camera with ui_data);
+		elseif next_scene = ID_EDITOR then
+			next_scene gets (call scene_editor with ui_data);
+		elseif next_scene = ID_HELP then
+			next_scene gets (call scene_help with ui_data);
+		else
+			next_scene gets ID_MAIN_MENU; -- fallback
+		end if
+	end while
+end function
+
+
+
+-- Run the editor
+function scene_editor of interface_data pointer ui_data returns u8 begin
+	-- draw background
+	call _sprites.draw with to _spritedata.code_bg, 0, 0;
+	
+	variable active_window is u8 gets WINDOW_CODE_EDITOR;
+	variable exit_char is u8 gets 0;
+	variable exit_shift is u8 gets 0;
+	
+	-- Editor-switching loop
+	while true do
+		-- Draw region backgrounds and choose colors
+		if active_window = WINDOW_CODE_EDITOR then
+			ui_data.region_code_editor.background_color gets COLOR_BG_ACTIVE;
+			ui_data.region_dictionary.background_color gets COLOR_BG_INACTIVE;
+			ui_data.region_notes.background_color gets COLOR_BG_INACTIVE;
+			
+			call _sprites.draw_transparent with to _spritedata.inactive_ref, EDITOR_DICTIONARY_X, EDITOR_DICTIONARY_Y;
+			call _sprites.draw_transparent with to _spritedata.inactive_notes, EDITOR_NOTES_X, EDITOR_NOTES_Y;
+		elseif active_window = WINDOW_DICTIONARY then
+			ui_data.region_code_editor.background_color gets COLOR_BG_INACTIVE;
+			ui_data.region_dictionary.background_color gets COLOR_BG_ACTIVE;
+			ui_data.region_notes.background_color gets COLOR_BG_INACTIVE;
+			
+			call _sprites.draw_transparent with to _spritedata.inactive_code, EDITOR_CODE_X, EDITOR_CODE_Y;
+			call _sprites.draw_transparent with to _spritedata.inactive_notes, EDITOR_NOTES_X, EDITOR_NOTES_Y;
+		else --if active_window = WINDOW_NOTES then
+			ui_data.region_code_editor.background_color gets COLOR_BG_INACTIVE;
+			ui_data.region_dictionary.background_color gets COLOR_BG_INACTIVE;
+			ui_data.region_notes.background_color gets COLOR_BG_ACTIVE;
+			
+			call _sprites.draw_transparent with to _spritedata.inactive_code, EDITOR_CODE_X, EDITOR_CODE_Y;
+			call _sprites.draw_transparent with to _spritedata.inactive_ref, EDITOR_DICTIONARY_X, EDITOR_DICTIONARY_Y;
+		end if
+		
+		-- Draw regions
+		call _editor.draw_region with ui_data.region_code_editor;
+		call _editor.draw_region with ui_data.region_dictionary;
+		call _editor.draw_region with ui_data.region_notes;
+	
+		if active_window = WINDOW_CODE_EDITOR then
+			-- Edit code
+			exit_char gets (call _editor.edit_region with ui_data.region_code_editor, true);
+			exit_shift gets exit_char and 0x80;
+			exit_char gets exit_char and 0x7F;
+			
+			if exit_char = KEY_ESCAPE then
+				-- escape = exit editor
+				return (call compile_code with ui_data);
+			elseif exit_char = KEY_TAB then
+				if exit_shift then
+					-- backwards
+					active_window gets WINDOW_NOTES;
+				else
+					-- forwards
+					active_window gets WINDOW_DICTIONARY;
+				end if
+			end if
+		elseif active_window = WINDOW_DICTIONARY then
+			-- Navigate dictionary
+			exit_char gets (call _editor.edit_region with ui_data.region_dictionary, false);
+			exit_shift gets exit_char and 0x80;
+			exit_char gets exit_char and 0x7F;
+			
+			if exit_char = KEY_ESCAPE then
+				-- escape = exit editor
+				return (call compile_code with ui_data);
+			elseif exit_char = KEY_TAB then
+				if exit_shift then
+					-- backwards
+					active_window gets WINDOW_CODE_EDITOR;
+				else
+					-- forwards
+					active_window gets WINDOW_NOTES;
+				end if
+			end if
+		else --if active_window = WINDOW_NOTES then
+			-- Edit notes
+			exit_char gets (call _editor.edit_region with ui_data.region_notes, true);
+			exit_shift gets exit_char and 0x80;
+			exit_char gets exit_char and 0x7F;
+			
+			if exit_char = KEY_ESCAPE then
+				-- escape = exit editor
+				return (call compile_code with ui_data);
+			elseif exit_char = KEY_TAB then
+				if exit_shift then
+					-- backwards
+					active_window gets WINDOW_DICTIONARY;
+				else
+					-- forwards
+					active_window gets WINDOW_CODE_EDITOR;
+				end if
+			end if
+		end if
+	end while
+end function
+
+
+
+-- Run the camera
+function scene_camera of interface_data pointer ui_data returns u8 begin
+
+end function
+
+
+
+-- Main menu
+function scene_menu of interface_data pointer ui_data returns u8 begin
+
+end function
+
+
+
+-- Help menu
+function scene_help of interface_data pointer ui_data returns u8 begin
+
+end function
+
+
+
+-- Compile code
+-- Show compilation window and output, choose to go back to editor or go to camera
+function compile_code of interface_data pointer ui_data returns u8 begin
+
+end function

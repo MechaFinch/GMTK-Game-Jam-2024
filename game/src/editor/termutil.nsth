@@ -1,0 +1,35 @@
+
+--
+-- term_util
+--
+
+-- set terminal bounds
+external function _termutil.set_term_bounds of u8 min_x, u8 min_y, u8 max_x, u8 max_y returns none;
+
+-- clear the terminal
+external function _termutil.clear_term of none returns none;
+
+-- move the cursor to a certain position via ANSI
+external function _termutil.set_pos of u8 x, u8 y returns none;
+
+-- move the cursor to a certain position via memory modification
+external function _termutil.set_pos_direct of u8 x, u8 y returns none;
+
+-- get the position of the cursor
+-- returns upper byte = y, lower byte = x
+external function _termutil.get_pos of none returns u16;
+
+-- print character
+external function _termutil.print_char of u8 c returns none;
+
+-- set foreground color
+external function _termutil.set_fgc of u8 c returns none;
+
+-- set background color
+external function _termutil.set_bgc of u8 c returns none;
+
+-- set foreground/background
+external function _termutil.set_color of u8 fgc, u8 bgc returns none;
+
+-- set enaled
+external function _termutil.set_enabled of u8 enabled returns none;
