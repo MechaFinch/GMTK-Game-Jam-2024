@@ -7,10 +7,16 @@
 -- From library
 library _forth from "../forth/kernelv2/src/forth";
 library _os from "fakeos/os";
+library _sprites from "simvideo/sprites";
 library _util;
 
 -- From game
 library _fs;
+library _spritedata from "../resources/spritedata";
+library _editor from "editor/editor";
+
+define STDIN is 0;
+define STDOUT is 1;
 
 define FORTH_PARAM_STACK_SIZE is 4096;
 define FORTH_LOCAL_STACK_SIZE is 4096;
@@ -21,12 +27,28 @@ define FORTH_STACK_PAD is 64;
 function main of none begin
 	-- Initialize
 	call _os.init with none;
+	call _os.change_file_attr with 0, 0b000;	-- disable input echo for fully custom key handling
 	call _forth.interop_init with FORTH_PARAM_STACK_SIZE, FORTH_LOCAL_STACK_SIZE, FORTH_USER_DICT_SIZE, FORTH_USER_DICT_PAD, FORTH_STACK_PAD;
 	call _fs.compile with none;
 	
 	-- Hello World
-	constant str is string gets "hello";
-	call _forth.interop_ncall with to str, sizeof str;
+	constant str_hello is string gets "hello";
+	call _forth.interop_ncall with to str_hello, sizeof str_hello;
+	
+	-- Editor testing
+	variable test_region is text_region pointer gets (call _editor.create_region with 5, 5, 15, 10, 100);
+	
+	constant str_up_1 is string gets "There is text";
+	constant str_up_2 is string gets "up here!";
+	constant str_down_1 is string gets "There is also";
+	constant str_down_2 is string gets "text down here!";
+	
+	call _util.memcopy with to str_up_1, test_region.buffer, sizeof str_up_1;
+	call _util.memcopy with to str_up_2, test_region.buffer + 16, 8;
+	call _util.memcopy with to str_down_1, test_region.buffer + 160, sizeof str_down_1;
+	call _util.memcopy with to str_down_2, test_region.buffer + 176, sizeof str_down_2;
+	
+	call _editor.edit_region with test_region, true;
 	
 	-- Safety loop
 	while 1 do

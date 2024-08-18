@@ -14,7 +14,7 @@ compile:
 	PUSHW BP
 	MOVW BP, SP
 	
-	CALL patch_dict
+	CALL housekeeping
 	
 	; hello_world.fs
 	PUSHW ptr [hello_world.len]
@@ -82,16 +82,23 @@ compile_file:
 
 
 
-; none patch_dict()
-; Patch this file's dictionary into forth's
-patch_dict:
+; none housekeeping()
+; do some housekeeping
+housekeeping:
 	PUSHW BP
 	MOVW BP, SP
+	PUSHW J:I
 	
+	; patch local dictionary into forth's dictionary
 	MOVW D:A, [forth.uvar_latest]
 	MOVW [LOCAL_DICT_END], D:A
 	MOVW D:A, LOCAL_DICT_LATEST
 	MOVW [forth.uvar_latest], D:A
 	
+	; disable cursor & clear screen
+	CALL forth.kernel_print_inline
+	db 13, 0x1B, "[?25l", 0x1B, "[2J", 0x1B, "[H"
+	
+	POPW J:I
 	POPW BP
 	RET
