@@ -1,0 +1,57 @@
+
+
+\ overall information about the ship 
+
+1 CONSTANT FUEL-STARTING
+1 CONSTANT METAL-STARTING 
+0 CONSTANT DISCOVERIES-STARTING
+
+20 CONSTANT FUEL-TO-WIN 
+\ 10 CONSTANT DISCOVERIES-TO-WIN
+
+VARIABLE FUEL-COUNT
+VARIABLE METAL-COUNT
+VARIABLE DISCOVERIES-COUNT
+
+: INIT-SHIP-RESOURCES 
+    FUEL-STARTING FUEL-COUNT !
+    METAL-STARTING METAL-COUNT !
+    DISCOVERIES-STARTING DISCOVERIES-COUNT !
+;
+
+: ADD-FUEL 
+    FUEL-COUNT 1+
+    CHECK-GAMEWIN
+;
+: ADD-METAL 
+    METAL-COUNT 1+
+;
+: ADD-DISCOVERY 
+    DISCOVERY-COUNT 1+
+;
+
+: SPEND-FUEL 
+    FUEL-COUNT 1-
+;
+: SPEND-METAL 
+    METAL-COUNT 1-
+;
+
+: CHECK-IF-DISCOVERED ;
+
+\ create a turtle IF there's enough resources 
+: TRY-CREATE-TURTLE 
+    \ TODO check if we have enough resources 
+    CREATE-TURTLE
+;
+
+\ enough fuel and enough discoveries to take off 
+: CHECK-GAMEWIN ;
+: CHECK-FUEL-WIN ;
+\ (wait, or is it fuel and then discoveries is score?)
+\: CHECK-DISCOVERIES-WIN ;
+
+\ no turtles alive AND 0 of either fuel or metal to make more 
+: CHECK-GAMEOVER ;
+: CHECK-FUEL-GAMEOVER ;
+: CHECK-METAL-GAMEOVER ;
