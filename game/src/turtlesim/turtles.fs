@@ -4,13 +4,33 @@
 
 20 CONSTANT MAX-TURTLES
 
-VARIABLE TURTLES-COUNT
+VARIABLE TURTLE-COUNT
 
-: ADD-TURTLE-COUNT ;
-: DECREMENT-TURTLE-COUNT ;
+: TURTLE-COUNT++
+    1 TURTLE-COUNT +!
+;
+: TURTLE-COUNT--
+    1 TURTLE-COUNT -!
+;
 
 \ object pooler of turtle structs that get reused 
 VARIABLE TURTLES-LIST
+
+\ since we'll often want to re-use the index of the turtle we're talking about, these variables will keep track of the turtle all these functions will act on 
+VARIABLE CURRENT-TURTLE-INDEX
+
+: SET-CURRENT-TURTLE ( index -- )
+    CURRENT-TURTLE-INDEX !
+;
+
+: CURRENT-TURTLE++ 
+    1 CURRENT-TURTLE-INDEX +!
+;
+
+\ the turtle data struct the current index points to 
+: CURRENT-TURTLE ( -- currentturtleaddr )
+    CURRENT-TURTLE-INDEX CELLS TURTLES-LIST +
+;
 
 \ a turtle stores 
 \ x,y position on the grid 
@@ -20,7 +40,7 @@ VARIABLE TURTLES-LIST
 \ 
 
 : INIT-TURTLE-OBJECTPOOLER 
-    0 TURTLES-COUNT !
+    0 TURTLE-COUNT !
 
 ;
 
@@ -36,6 +56,7 @@ VARIABLE TURTLES-LIST
     \ init a turtle at the selected index in the object pooler 
     \ fill the information with defaults 
     \ increment the turtle counter 
+    TURTLE-COUNT++
     \ TODO set turtle active based on variable passed in 
 ;
 
@@ -47,10 +68,21 @@ VARIABLE TURTLES-LIST
     \ TODO set that turtle active 
 ;
 
+: FAILED-CREATE-TURTLE-METAL
+    ."Not enough METAL! " CR
+;
+: FAILED-CREATE-TURTLE-FUEL
+    ."Not enough FUEL! " CR
+;
+: FAILED-CREATE-TURTLE-COUNTLIMIT
+    ."Maximum probes reached! " CR
+;
+
 : TRY-CREATE-TURTLE
 
     \ validate metal 
     \ validate fuel 
+    \ validate enough turtles
 
     \ check if object pooler has an open slot- so really, just check if the turtle count is lower than the maximum 
     HAS-SPACE-FOR-NEW-TURTLE \ TODO put this in an if 
@@ -140,14 +172,18 @@ VARIABLE TURTLES-LIST
 ;
 \ if it's fuel or metal, it gets added 
 
-: DAMAGE-TURTLE
-
-;
-
-: CHECK-TURTLE-DEATH ;
 : TURTLE-DIES 
     \ TODO 
     CHECK-GAMEOVER 
+;
+
+: CHECK-TURTLE-DEATH 
+
+;
+
+: DAMAGE-TURTLE
+    \ decrement turtle hp 
+    CHECK-TURTLE-DEATH
 ;
 
 \ run the logic of a turtle 

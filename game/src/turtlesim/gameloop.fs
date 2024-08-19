@@ -1,5 +1,4 @@
 
-VARIABLE TURTLE-TURNTAKER
 
 \ runs once before GAME-UPDATE 
 : GAME-START 
@@ -7,7 +6,7 @@ VARIABLE TURTLE-TURNTAKER
 
 
 
-    0 TURTLE-TURNTAKER !
+    0 SET-CURRENT-TURTLE
 ;
 
 \ our equivalent of any game engine's update
@@ -16,6 +15,13 @@ VARIABLE TURTLE-TURNTAKER
     \ run the code for the turtle at index TURTLE-TURNTAKER ie TICK-TURTLE
 
     \ increment the turntaker 
+    CURRENT-TURTLE++
 
     \ if reached the max number of turtles, set it back to 0 
+    MAX-TURTLES CURRENT-TURTLE-INDEX >= IF 
+        0 SET-CURRENT-TURTLE
+    ELSE 
+
+    THEN 
+
 ;

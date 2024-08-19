@@ -1,6 +1,5 @@
 
 
-
 \ a tile stores 
 \ its forth word 
 \ its written description 
@@ -63,14 +62,45 @@
 : EAST EAST-X EAST-Y ;
 : WEST WEST-X WEST-Y ;
 
-\ are the coordinates within the size of the map?
-: VALIDATE-COORDINATES 
+\ add 2 coordinates 
+\ TODO use locals later
+VARIABLE +COORDX 
+VARIABLE +COORDY
+: +COORD ( x1 y1 x2 y2 -- x3 y3 )
+    +COORDY !
+    +COORDX ! 
+    +COORDY +!
+    +COORDX +! 
+    +COORDX +COORDY
+;
 
+\ is a single coordinate within the size of the map?
+: VALIDATE-COORDINATE ( x -- bool )
+    MAP-SIZE >= IF 
+        true
+    ELSE 
+        false
+    THEN 
+;
+
+\ are the coordinates within the size of the map?
+: VALIDATE-COORDINATES ( x y -- bool )
+    VALIDATE-COORDINATE IF 
+        VALIDATE-COORDINATE IF 
+            true 
+        ELSE 
+            false 
+        THEN
+    ELSE 
+        false
+    THEN 
 ;
 
 
 \ get tile by position 
-: GET-TILE ;
+: GET-TILE ( x y -- tile )
+
+;
 
 
 
