@@ -45,7 +45,23 @@
 \ TODO we can generate this if time allows 
 : MAP ;
 
+\ directions relative to world 
+0 CONSTANT NORTH-X 
+1 CONSTANT NORTH-Y
 
+0 CONSTANT SOUTH-X 
+-1 CONSTANT SOUTH-Y
+
+1 CONSTANT EAST-X 
+0 CONSTANT EAST-Y 
+
+-1 CONSTANT WEST-X 
+0 CONSTANT WEST-Y
+
+: NORTH NORTH-X NORTH-Y ;
+: SOUTH SOUTH-X SOUTH-Y ;
+: EAST EAST-X EAST-Y ;
+: WEST WEST-X WEST-Y ;
 
 \ are the coordinates within the size of the map?
 : VALIDATE-COORDINATES 
@@ -66,4 +82,8 @@
     \ remove the metal on a tile of the given coordinates
 ;
 
+\ return the number referring to a sprite according to the dictionary sprite-dictionary.txt given an x y coordinate representing the position of the tile
+\ returns 0 if undiscovered, which corresponds to the undiscovered sprite 
+: GET-TILE-SPRITE-ID ( x y -- id ) 
 
+;

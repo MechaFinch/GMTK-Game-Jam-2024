@@ -1,5 +1,6 @@
 
 \ overall information about the ship 
+\ stores some authoritative variables 
 
 1 CONSTANT FUEL-STARTING
 1 CONSTANT METAL-STARTING 
@@ -8,9 +9,6 @@
 
 20 CONSTANT FUEL-TO-WIN 
 \ 10 CONSTANT DISCOVERIES-TO-WIN
-
-1 CONSTANT METAL-PER-TURTLE
-1 CONSTANT FUEL-PER-TURTLE
 
 VARIABLE FUEL-COUNT
 VARIABLE METAL-COUNT
@@ -27,7 +25,7 @@ VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
     
     \ init all discoveries as false to start with 
     DISCOVERIES-TOTAL 0 DO 
-        false I DISCOVERIES[] !
+        FALSE I DISCOVERIES[] !
     LOOP
 ;
 

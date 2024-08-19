@@ -1,7 +1,11 @@
 
+1 CONSTANT METAL-PER-TURTLE
+1 CONSTANT FUEL-PER-TURTLE
+
 20 CONSTANT MAX-TURTLES
 
 VARIABLE TURTLES-COUNT
+
 : ADD-TURTLE-COUNT ;
 : DECREMENT-TURTLE-COUNT ;
 
@@ -15,11 +19,16 @@ VARIABLE TURTLES-LIST
 \ a timer indicating how close it is to corroding a pip 
 \ 
 
-: VALIDATE-SPACE-FOR-NEW-TURTLE
+: INIT-TURTLE-OBJECTPOOLER 
+    0 TURTLES-COUNT !
+
+;
+
+: HAS-SPACE-FOR-NEW-TURTLE
     \ use MAX-TURTLES and the ship turtle count 
 ;
 
-: FIND-OPEN-TURTLE-SLOT 
+: GET-OPEN-TURTLE-SLOT 
     \ return the first found index to put a new turtle 
 ;
 
@@ -27,42 +36,27 @@ VARIABLE TURTLES-LIST
     \ init a turtle at the selected index in the object pooler 
     \ fill the information with defaults 
     \ increment the turtle counter 
+    \ TODO set turtle active based on variable passed in 
 ;
 
 : CREATE-TURTLE 
+        \ TODO put these in loops based on variables
     SPEND-METAL 
     SPEND-FUEL 
-    INIT-TURTLE
+    INIT-TURTLE \ TODO at selected index 
+    \ TODO set that turtle active 
 ;
 
 : TRY-CREATE-TURTLE
+
     \ validate metal 
     \ validate fuel 
+
     \ check if object pooler has an open slot- so really, just check if the turtle count is lower than the maximum 
-    CREATE-TURTLE
+    HAS-SPACE-FOR-NEW-TURTLE \ TODO put this in an if 
+    GET-OPEN-TURTLE-SLOT CREATE-TURTLE \ create turtle at the next open index
 ;
 
-
-\ a game clock for simulating turtles 
-: TICK-TURTLES ;
-
-\ directions relative to world 
-0 CONSTANT NORTH-X 
-1 CONSTANT NORTH-Y
-
-0 CONSTANT SOUTH-X 
--1 CONSTANT SOUTH-Y
-
-1 CONSTANT EAST-X 
-0 CONSTANT EAST-Y 
-
--1 CONSTANT WEST-X 
-0 CONSTANT WEST-Y
-
-: NORTH ;
-: SOUTH ;
-: EAST ;
-: WEST ;
 
 \ directions relative to turtle facing 
 : FORWARD ;
@@ -70,19 +64,49 @@ VARIABLE TURTLES-LIST
 : LEFT ;
 : RIGHT ;
 
-\ moving the turtle 
-: MOVE-FORWARD ;
 
-: SET-TURTLE-POSITION ;
+: IS-PASSABLE 
+    \ is the tile at the given coordinates passable? returns true if so 
+;
+
+: SET-TURTLE-POSITION 
+
+;
+
+: EXECUTE-TILE-LOGIC-OVERLAP
+    \ do whatever the tile does when the player lands on the tile 
+;
+: EXECUTE-TILE-LOGIC-EXAMINE
+    \ do whatever the tile does when the player examines it
+;
+\ TODO more of these 
+
+
+\ moving the turtle 
+: MOVE-FORWARD 
+    \ VALIDATE-COORDINATES of what direction it's trying to move in 
+    \ if IS-PASSABLE 
+    \ SET-POSITION 
+
+;
+
 
 \ rotating the turtle 
-: TURN-RIGHT ;
-: TURN-LEFT ;
+: TURN-RIGHT 
 
-: SET-TURTLE-DIRECTION ;
+;
+: TURN-LEFT 
+
+;
+
+: SET-TURTLE-DIRECTION 
+
+;
 
 \ examine the thing in front of it. will count towards discoveries 
-: EXAMINE-AHEAD ;
+: EXAMINE-AHEAD 
+
+;
 
 
 
@@ -92,11 +116,13 @@ VARIABLE TURTLES-LIST
 : IS-FUEL-ON-TILE
 
 ;
+
 : PICK-UP-FUEL 
     \ TODO provide coordinates for the below
     REMOVE-FUEL-TILE
     ADD-FUEL
 ;
+
 : PICK-UP-METAL 
     \ TODO provide coordinates for the below
     REMOVE-METAL-TILE 
@@ -114,12 +140,18 @@ VARIABLE TURTLES-LIST
 ;
 \ if it's fuel or metal, it gets added 
 
+: DAMAGE-TURTLE
 
-
-
+;
 
 : CHECK-TURTLE-DEATH ;
 : TURTLE-DIES 
-    / TODO 
+    \ TODO 
     CHECK-GAMEOVER 
 ;
+
+\ run the logic of a turtle 
+: TICK-TURTLE
+    \
+;
+
