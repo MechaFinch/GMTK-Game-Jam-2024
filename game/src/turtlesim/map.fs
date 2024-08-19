@@ -1,4 +1,21 @@
 
+
+
+\ a tile stores 
+\ its forth word 
+\ its written description 
+\ bool: is it passable
+\ int: what discovery it is, if any. TODO this should default to like -1 or null or something so we can check for nil
+\ sprites: overhead view, side view close, side view far, in-front-of-you view;
+    \ SPRITE-TOPDOWN SPRITE-WINDOW-CLOSE SPRITE-WINDOW-FAR SPRITE-WINDOW-CENTER
+    \ SPRITE-<filename>
+\ functions for when turtles interact with it? or do turtles code their interaction with tiles.
+
+
+\ define the data about the types of tiles 
+: DEFINE-TILES ;
+
+
 \ a map is a grid of forth words that correspond to their data type 
 \ e.g. 
 \ CLIFF CLIFF CLIFF 
@@ -11,18 +28,6 @@
 \ TODO a separate grid of turtles, which can occupy grid spaces but not run into each other? 
 
 8 CONSTANT MAP-SIZE 
-
-\ a tile stores 
-\ its forth word 
-\ its written description 
-\ bool: is it passable
-\ sprites: overhead view, side view close, side view far, in-front-of-you view;
-    \ SPRITE-TOPDOWN SPRITE-WINDOW-CLOSE SPRITE-WINDOW-FAR SPRITE-WINDOW-CENTER
-    \ SPRITE-<filename>
-\ functions for when turtles interact with it? or do turtles code their interaction with tiles.
-
-\ define the data about the types of tiles 
-: DEFINE-TILES ;
 
 
 \ creature mechanic ideas 
@@ -42,15 +47,23 @@
 
 
 
+\ are the coordinates within the size of the map?
+: VALIDATE-COORDINATES 
+
+;
+
+
 \ get tile by position 
 : GET-TILE ;
 
-\ are the coordinates within the size of the map?
-: VALIDATE-COORDINATES ;
 
 
 \ for picking things up from a given tile 
-: REMOVE-FUEL-TILE ;
-: REMOVE-METAL-TILE ;
+: REMOVE-FUEL-TILE 
+    \ remove the fuel on a tile of the given coordinates
+;
+: REMOVE-METAL-TILE 
+    \ remove the metal on a tile of the given coordinates
+;
 
 
