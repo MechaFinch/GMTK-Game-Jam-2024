@@ -3,6 +3,7 @@
 
 : VARIABLE CREATE 1 CELLS ALLOT ;
 : CONSTANT CREATE , DOES> @ ;
+: >= ( a b -- flag ) 2DUP > -ROT = OR ;
 
 \ Compile editor contents
 \ Really just a CATCH around EVALUATE
