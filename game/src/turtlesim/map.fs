@@ -141,8 +141,8 @@ VARIABLE MAP-DISCOVERED MAP-SIZE 2 * CELLS ALLOT
 \ 2d array x y to 1d array x
 VARIABLE 2D1DV
 : 2D-TO-1D ( x y -- address )
-    CELLS * MAP-SIZE * 2D1DV ! 
-    CELLS * 2D1DV +!
+    CELLS MAP-SIZE * 2D1DV ! 
+    CELLS 2D1DV +!
     2D1DV
 ;
 
