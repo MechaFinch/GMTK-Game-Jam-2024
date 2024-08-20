@@ -1,7 +1,7 @@
 
 \ runs once before GAME-UPDATE 
 \ initialize all our data 
-: GAME-START 
+: GAME-START ( -- )
     
     FALSE IS-ENDED ! 
     FALSE IS-ENDED-WIN ! 
@@ -15,10 +15,13 @@
     INIT-USER-WORD-DICTIONARY
 
     0 SET-CURRENT-TURTLE
+
+    TRY-CREATE-TURTLE
+    TRY-CREATE-TURTLE
 ;
 
 \ our equivalent of any game engine's update
-: GAME-UPDATE 
+: GAME-UPDATE ( -- )
 
     \ run the code for the turtle at the current turtle index
     RUN-PLAYER-CODE

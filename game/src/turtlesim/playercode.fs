@@ -3,4 +3,5 @@
 : STARTING-CODE 
     ." EXAMINE-AHEAD " CR
     ." MOVE-FORWARD " CR
+    ." CLONE-SELF " CR
 ;

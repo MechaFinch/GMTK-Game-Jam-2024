@@ -61,12 +61,12 @@
 : PRINT-END-ART-SOME 
     ."       MISSION RESULTS:    " CR
     ."           SUCCESS         " CR
-    ."  SOME ARTIFACTS DISCOVERED" CR
+    ." SOME ARTIFACTS DISCOVERED " CR
     ."                           " CR
     ." The piecemeal data you    " CR
-    ." return with breathes new  " CR
-    ." life into the study of the" CR
-    ." distant moon.             " CR
+    ." safely return with        " CR
+    ." breathes newlife into the " CR
+    ." study of the distant moon." CR
     ." The imaginations of       " CR
     ." academia and the public   " CR
     ." have been captured.       " CR

@@ -60,7 +60,7 @@ Relative to the direction the Turtle is facing:
 - LEFT 
 - RIGHT
 
-These Direction constants come in the form X Y where X and Y are integers and NORTH is 0 1.
+These Direction constants come in the form X Y where X and Y are integers and NORTH is 0 1. Directions are also available as enums in the format ENUM-NORTH ect where ENUM-NORTH is 0.
 
 
 Moving your Turtle 
