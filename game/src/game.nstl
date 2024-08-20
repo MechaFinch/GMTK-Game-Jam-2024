@@ -94,7 +94,7 @@ function main of none begin
 	ui_data gets interface_data of
 		-- code editor text areas
 		region_code_editor gets (call _editor.create_region with 2, 2, 20, 22, 128),
-		region_dictionary gets (call _editor.create_region with 24, 2, 13, 12, 20),
+		region_dictionary gets (call _editor.create_region with 24, 2, 13, 12, 29),
 		region_notes gets (call _editor.create_region with 24, 15, 13, 11, 32),
 		region_code_output gets (call _editor.create_region with 7, 3, 26, 20, 0),		-- terminal output area
 		region_turtle_output gets (call _editor.create_region with 13, 16, 25, 9, 0),	-- terminal output area
@@ -116,35 +116,9 @@ function main of none begin
 	end structure;
 	
 	-- TODO: place turtlesim/playerdictionary.txt in region_dictionary.buffer
-	constant str_1 is string gets "Reference text 1";
-	constant str_2 is string gets "Reference text 2";
-	constant str_3 is string gets "Reference text 3";
-	constant str_4 is string gets "Reference text 4";
-	call _util.memcopy with to str_1, ui_data.region_dictionary.buffer + (0 * 20), sizeof str_1;
-	call _util.memcopy with to str_2, ui_data.region_dictionary.buffer + (1 * 20), sizeof str_2;
-	call _util.memcopy with to str_3, ui_data.region_dictionary.buffer + (2 * 20), sizeof str_3;
-	call _util.memcopy with to str_4, ui_data.region_dictionary.buffer + (12 * 20), sizeof str_4;
-	
+	call _util.memcopy with to _fs.playerdictionary, ui_data.region_dictionary.buffer, 29 * 14;
+		
 	call _ui.run_interface with to ui_data;
-	
-	-- Hello World
-	--constant str_hello is string gets "hello";
-	--call _forth.interop_ncall with to str_hello, sizeof str_hello;
-	
-	-- Editor testing
-	--variable test_region is text_region pointer gets (call _editor.create_region with 5, 5, 15, 10, 100);
-	--
-	--constant str_up_1 is string gets "There is text";
-	--constant str_up_2 is string gets "up here!";
-	--constant str_down_1 is string gets "There is also";
-	--constant str_down_2 is string gets "text down here!";
-	--
-	--call _util.memcopy with to str_up_1, test_region.buffer, sizeof str_up_1;
-	--call _util.memcopy with to str_up_2, test_region.buffer + 16, 8;
-	--call _util.memcopy with to str_down_1, test_region.buffer + 160, sizeof str_down_1;
-	--call _util.memcopy with to str_down_2, test_region.buffer + 176, sizeof str_down_2;
-	--
-	--call _editor.edit_region with test_region, true;
 	
 	-- Safety loop
 	while 1 do

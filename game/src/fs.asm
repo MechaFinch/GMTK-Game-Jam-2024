@@ -6,6 +6,7 @@
 
 %include "../forth/kernelv2/src/forth.asm" as forth
 %include "fakeos/terminal.asm" as term
+%include "util.asm" as util
 
 %define LOCAL_DICT_END fhead_terminal_bounds
 %define LOCAL_DICT_LATEST fhead_terminal_bounds
@@ -193,6 +194,7 @@ exception_handler:
 	PUSHW D:A
 
 	; default terminal
+	CALL util.unbuffer_screen
 	MOV AL, 29
 	MOV [term.max_y], AL
 	MOV AL, 39
@@ -208,11 +210,13 @@ exception_handler:
 	; message
 	CALL forth.kernel_print_inline
 	db 111, "Uncaught exception during FORTH", 0x0A, "execution. Please do not cause this.", 0x0A, "Press any key to restart.", 0x0A, "Exception code: "
-	
+
+.what1:
 	POPW J:I
 	MOV B, 0x010A
 	CALL forth.kernel_print_number
 	
+.what2:
 	; echo off, ansi off, blocking on
 	MOV D, 0
 	MOV C, 0b0100
@@ -366,3 +370,7 @@ find:
 .not_found_after:
 	POPW J:I
 	JMP .ret
+
+
+playerdictionary:
+	incbin "turtlesim/playerdictionary.txt"
