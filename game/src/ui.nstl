@@ -299,9 +299,6 @@ function scene_camera of interface_data pointer ui_data returns u8 begin
 	ui_data.region_turtle_output.background_color gets COLOR_BG_ACTIVE;
 	call _editor.set_term_area with ui_data.region_turtle_output;
 	
-	-- enable game updates
-	call _periodic.set_updates_enabled with true;
-	
 	-- Loop
 	while true do
 		-- Periodically update graphics
@@ -329,8 +326,9 @@ function scene_camera of interface_data pointer ui_data returns u8 begin
 			end if
 			
 			-- Do graphics
-			-- Draw map
 			call _util.buffer_screen with none;
+			
+			-- Draw map
 			call _sprites.draw_part with to _spritedata.camera_bg, CAMERA_MAP_START_X, CAMERA_MAP_START_Y, CAMERA_MAP_START_X, CAMERA_MAP_START_Y, CAMERA_MAP_PWIDTH, CAMERA_MAP_PHEIGHT;
 			
 			for x is u16 gets 0; x < CAMERA_MAP_WIDTH; x gets x + 1 do
@@ -367,12 +365,71 @@ function scene_camera of interface_data pointer ui_data returns u8 begin
 					end if
 				end for
 			end for
+			
+			-- Count active turtles
+			variable active_turtle_count is u8 gets 0;
+			call _forth.interop_pcall with ui_data.fword_max_turtles;
+			variable max_turtles is u8 gets (call _forth.interop_pop with none) as u8;
+			
+			for id is u8 gets 0; id < max_turtles; id gets id + 1 do
+				call _forth.interop_push with id as u32;
+				call _forth.interop_pcall with ui_data.fword_turtle_get_active;
+				if (call _forth.interop_pop with none) != 0 then
+					active_turtle_count gets active_turtle_count + 1;
+				end if
+			end for
+			
+			-- Resource status display
+			call _forth.interop_pcall with ui_data.fword_disco_count;
+			call _forth.interop_pcall with ui_data.fword_metal_count;
+			call _forth.interop_pcall with ui_data.fword_fuel_count;
+			
+			variable fuel_count is u8 gets u8 at (call _forth.interop_pop with none);
+			variable metal_count is u8 gets u8 at (call _forth.interop_pop with none);
+			variable disco_count is u8 gets u8 at (call _forth.interop_pop with none);
+			
+			ui_data.region_resources.background_color gets COLOR_BG_ACTIVE;
+			call _editor.set_term_area with ui_data.region_resources;
+			
+			constant str_turtles is string gets "Turtles";
+			constant str_fuel is string gets "Fuel";
+			constant str_metal is string gets "Metal";
+			
+			call _forth.interop_pcall with to _forth.fword_page;
+			
+			call _os.write_file with STDOUT, sizeof str_turtles, to str_turtles;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			
+			call _forth.interop_push with active_turtle_count as u32;
+			call _forth.interop_pcall with to _forth.fword_dot;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			
+			call _os.write_file with STDOUT, sizeof str_fuel, to str_fuel;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			
+			call _forth.interop_push with fuel_count as u32;
+			call _forth.interop_pcall with to _forth.fword_dot;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			
+			call _os.write_file with STDOUT, sizeof str_metal, to str_metal;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			
+			call _forth.interop_push with metal_count as u32;
+			call _forth.interop_pcall with to _forth.fword_dot;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			call _forth.interop_pcall with to _forth.fword_cr;
+			
+			call _editor.set_term_area with ui_data.region_turtle_output;
+			
+			ui_data.region_turtle_output.background_color gets COLOR_BG_ACTIVE;
+			call _editor.set_term_area with ui_data.region_turtle_output;
 			call _util.unbuffer_screen with none;
 		end if
 		
 		-- Wait for interrupts
 		call _os.defer with none;
-		
 		variable input is u8 gets (call non_blocking_read with none);
 		
 		if input != 0 then
@@ -382,11 +439,9 @@ function scene_camera of interface_data pointer ui_data returns u8 begin
 			
 			if input_char = KEY_ESCAPE then
 				-- escape = switch to editor
-				call _periodic.set_updates_enabled with false;
 				return ID_EDITOR;
 			elseif (input_char = KEY_ENTER) and (active_window = WINDOW_NAV_CODE) then
 				-- enter on code button = switch to editor
-				call _periodic.set_updates_enabled with false;
 				return ID_EDITOR;
 			elseif input_char = KEY_TAB then
 				if active_window = WINDOW_NAV_ARROWS then

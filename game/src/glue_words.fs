@@ -69,7 +69,15 @@ init-glue
 \ PLACEHOLDERS
 \
 
+VARIABLE v_placeholder
+0 v_placeholder !
+
 : GET-TILE-SPRITE-ID ( x y -- id ) 2DROP 0 ;
 : IS-ENDED-WIN ( -- flag ) FALSE ;
 : IS-ENDED-LOSS ( -- flag ) FALSE ;
 : PRINT-ENDING-TEXT ( -- ) ;
+: FUEL-COUNT ( -- addr ) v_placeholder ;
+: METAL-COUNT ( -- addr ) v_placeholder ;
+: DISCOVERIES-COUNT ( -- addr ) v_placeholder ;
+: MAX-TURTLES ( -- n ) 20 ;
+: TURTLES[].ISACTIVE ( index -- flag ) ;

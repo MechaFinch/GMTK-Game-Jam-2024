@@ -20,6 +20,7 @@ type interface_data is structure of
 	region_notes is text_region pointer,
 	region_code_output is text_region pointer,
 	region_turtle_output is text_region pointer,
+	region_resources is text_region pointer,
 	
 	fword_game_update is ptr,		-- ( -- )
 	fword_compile_editor is ptr,	-- ( c-addr u -- )
@@ -27,7 +28,12 @@ type interface_data is structure of
 	fword_tile_sprite_id is ptr,	-- ( x y -- id )
 	fword_ended_win is ptr,			-- ( -- flag )
 	fword_ended_loss is ptr,		-- ( -- flag )
-	fword_ending_text is ptr		-- ( -- )
+	fword_ending_text is ptr,		-- ( -- )
+	fword_fuel_count is ptr,		-- ( -- addr )
+	fword_metal_count is ptr,		-- ( -- addr )
+	fword_disco_count is ptr,		-- ( -- addr )
+	fword_max_turtles is ptr,		-- ( -- n )
+	fword_turtle_get_active is ptr	-- ( index -- flag )
 end type
 
 -- Run the interface
