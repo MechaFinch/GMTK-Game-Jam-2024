@@ -3,9 +3,15 @@
 -- User Interface
 --
 
+library _forth from "../forth/kernelv2/src/forth";
 library _sprites from "simvideo/sprites";
+library _os from "fakeos/os";
 
+library _periodic;
 library _spritedata from "../resources/spritedata";
+
+define STDIN is 0;
+define STDOUT is 1;
 
 define ID_MAIN_MENU is 0;
 define ID_CAMERA is 1;
@@ -15,7 +21,10 @@ define ID_HELP is 3;
 define WINDOW_CODE_EDITOR is 0;
 define WINDOW_DICTIONARY is 1;
 define WINDOW_NOTES is 2;
-define WINDOW_NAVIGATION is 3;
+define WINDOW_NAV_CAMERA is 3;
+define WINDOW_NAV_LAUNCH is 4;
+define WINDOW_NAV_ARROWS is 5;
+define WINDOW_NAV_CODE is 6;
 
 define COLOR_BLACK is 1;
 define COLOR_WHITE is 0xFF;
@@ -25,17 +34,41 @@ define COLOR_BG_INACTIVE is 5;
 
 define EDITOR_CODE_X is 16;
 define EDITOR_CODE_Y is 16;
-define EDITOR_DICTIONARY_X is 144;
+define EDITOR_DICTIONARY_X is 192;
 define EDITOR_DICTIONARY_Y is 16;
-define EDITOR_NOTES_X is 144;
+define EDITOR_NOTES_X is 192;
 define EDITOR_NOTES_Y is 120;
+define EDITOR_BUTTON_CAMERA_X is 15;
+define EDITOR_BUTTON_CAMERA_Y is 216;
+define EDITOR_BUTTON_CODE_X is 168;
+define EDITOR_BUTTON_CODE_Y is 217;
+define EDITOR_BUTTON_LAUNCH_X is 17;
+define EDITOR_BUTTON_LAUNCH_Y is 200;
+define EDITOR_WINDOW_X is 54;
+define EDITOR_WINDOW_Y is 47;
 
+define CAMERA_ARROW_LEFT_X is 16;
+define CAMERA_ARROW_LEFT_Y is 104;
+define CAMERA_ARROW_RIGHT_X is 64;
+define CAMERA_ARROW_RIGHT_Y is 104;
+define CAMERA_ARROW_UP_X is 104;
+define CAMERA_ARROW_UP_Y is 112;
+define CAMERA_ARROW_DOWN_X is 176;
+define CAMERA_ARROW_DOWN_Y is 112;
+define CAMERA_BUTTON_CAMERA_X is 16;
+define CAMERA_BUTTON_CAMERA_Y is 217;
+define CAMERA_BUTTON_CODE_X is 168;
+define CAMERA_BUTTON_CODE_Y is 217;
+
+define UPDATE_PERIOD is 200; -- 5 u/s
+
+define KEY_ENTER is 0x0A;
 define KEY_ESCAPE is 0x1B;
 define KEY_TAB is 0x09;
 
 -- Initialize & run the interface
 function run_interface of interface_data pointer ui_data returns none begin
-	variable next_scene is u8 gets ID_EDITOR;
+	variable next_scene is u8 gets ID_MAIN_MENU;
 	
 	while true do
 		if next_scene = ID_MAIN_MENU then
@@ -63,65 +96,66 @@ function scene_editor of interface_data pointer ui_data returns u8 begin
 	variable exit_char is u8 gets 0;
 	variable exit_shift is u8 gets 0;
 	
+	-- Draw for code editor
+	ui_data.region_code_editor.background_color gets COLOR_BG_ACTIVE;
+	ui_data.region_dictionary.background_color gets COLOR_BG_INACTIVE;
+	ui_data.region_notes.background_color gets COLOR_BG_INACTIVE;
+	
+	--call _sprites.draw_transparent with to _spritedata.inactive_ref, EDITOR_DICTIONARY_X, EDITOR_DICTIONARY_Y;
+	--call _sprites.draw_transparent with to _spritedata.inactive_notes, EDITOR_NOTES_X, EDITOR_NOTES_Y;
+	call _sprites.draw with to _spritedata.tab_camera, EDITOR_BUTTON_CAMERA_X, EDITOR_BUTTON_CAMERA_Y;
+	call _sprites.draw with to _spritedata.code_launch, EDITOR_BUTTON_LAUNCH_X, EDITOR_BUTTON_LAUNCH_Y;
+	
+	call _editor.draw_region with ui_data.region_code_editor;
+	call _editor.draw_region with ui_data.region_dictionary;
+	call _editor.draw_region with ui_data.region_notes;
+	
 	-- Editor-switching loop
 	while true do
-		-- Draw region backgrounds and choose colors
 		if active_window = WINDOW_CODE_EDITOR then
+			-- draw as area as active
 			ui_data.region_code_editor.background_color gets COLOR_BG_ACTIVE;
-			ui_data.region_dictionary.background_color gets COLOR_BG_INACTIVE;
-			ui_data.region_notes.background_color gets COLOR_BG_INACTIVE;
 			
-			call _sprites.draw_transparent with to _spritedata.inactive_ref, EDITOR_DICTIONARY_X, EDITOR_DICTIONARY_Y;
-			call _sprites.draw_transparent with to _spritedata.inactive_notes, EDITOR_NOTES_X, EDITOR_NOTES_Y;
-		elseif active_window = WINDOW_DICTIONARY then
-			ui_data.region_code_editor.background_color gets COLOR_BG_INACTIVE;
-			ui_data.region_dictionary.background_color gets COLOR_BG_ACTIVE;
-			ui_data.region_notes.background_color gets COLOR_BG_INACTIVE;
-			
-			call _sprites.draw_transparent with to _spritedata.inactive_code, EDITOR_CODE_X, EDITOR_CODE_Y;
-			call _sprites.draw_transparent with to _spritedata.inactive_notes, EDITOR_NOTES_X, EDITOR_NOTES_Y;
-		else --if active_window = WINDOW_NOTES then
-			ui_data.region_code_editor.background_color gets COLOR_BG_INACTIVE;
-			ui_data.region_dictionary.background_color gets COLOR_BG_INACTIVE;
-			ui_data.region_notes.background_color gets COLOR_BG_ACTIVE;
-			
-			call _sprites.draw_transparent with to _spritedata.inactive_code, EDITOR_CODE_X, EDITOR_CODE_Y;
-			call _sprites.draw_transparent with to _spritedata.inactive_ref, EDITOR_DICTIONARY_X, EDITOR_DICTIONARY_Y;
-		end if
-		
-		-- Draw regions
-		call _editor.draw_region with ui_data.region_code_editor;
-		call _editor.draw_region with ui_data.region_dictionary;
-		call _editor.draw_region with ui_data.region_notes;
-	
-		if active_window = WINDOW_CODE_EDITOR then
-			-- Edit code
+			-- Edit code (edit_region redraws)
 			exit_char gets (call _editor.edit_region with ui_data.region_code_editor, true);
 			exit_shift gets exit_char and 0x80;
 			exit_char gets exit_char and 0x7F;
 			
 			if exit_char = KEY_ESCAPE then
-				-- escape = exit editor
-				return (call compile_code with ui_data);
+				-- escape = exit to camera
+				return ID_CAMERA;
 			elseif exit_char = KEY_TAB then
+				-- draw area as inactive
+				ui_data.region_code_editor.background_color gets COLOR_BG_INACTIVE;
+				--call _sprites.draw_transparent with to _spritedata.inactive_code, EDITOR_CODE_X, EDITOR_CODE_Y;
+				call _editor.draw_region with ui_data.region_code_editor;
+			
 				if exit_shift then
 					-- backwards
-					active_window gets WINDOW_NOTES;
+					active_window gets WINDOW_NAV_LAUNCH;
 				else
 					-- forwards
 					active_window gets WINDOW_DICTIONARY;
 				end if
 			end if
 		elseif active_window = WINDOW_DICTIONARY then
+			-- draw as active
+			ui_data.region_dictionary.background_color gets COLOR_BG_ACTIVE;
+		
 			-- Navigate dictionary
 			exit_char gets (call _editor.edit_region with ui_data.region_dictionary, false);
 			exit_shift gets exit_char and 0x80;
 			exit_char gets exit_char and 0x7F;
 			
 			if exit_char = KEY_ESCAPE then
-				-- escape = exit editor
-				return (call compile_code with ui_data);
+				-- escape = exit to camera
+				return ID_CAMERA;
 			elseif exit_char = KEY_TAB then
+				-- draw as inactive
+				ui_data.region_dictionary.background_color gets COLOR_BG_INACTIVE;
+				--call _sprites.draw_transparent with to _spritedata.inactive_ref, EDITOR_DICTIONARY_X, EDITOR_DICTIONARY_Y;
+				call _editor.draw_region with ui_data.region_dictionary;
+				
 				if exit_shift then
 					-- backwards
 					active_window gets WINDOW_CODE_EDITOR;
@@ -130,19 +164,81 @@ function scene_editor of interface_data pointer ui_data returns u8 begin
 					active_window gets WINDOW_NOTES;
 				end if
 			end if
-		else --if active_window = WINDOW_NOTES then
+		elseif active_window = WINDOW_NOTES then
+			-- draw as active
+			ui_data.region_notes.background_color gets COLOR_BG_ACTIVE;
+			
 			-- Edit notes
 			exit_char gets (call _editor.edit_region with ui_data.region_notes, true);
 			exit_shift gets exit_char and 0x80;
 			exit_char gets exit_char and 0x7F;
 			
 			if exit_char = KEY_ESCAPE then
-				-- escape = exit editor
-				return (call compile_code with ui_data);
+				-- escape = exit to camera
+				return ID_CAMERA;
 			elseif exit_char = KEY_TAB then
+				-- draw as inactive
+				ui_data.region_notes.background_color gets COLOR_BG_INACTIVE;
+				--call _sprites.draw_transparent with to _spritedata.inactive_notes, EDITOR_NOTES_X, EDITOR_NOTES_Y;
+				call _editor.draw_region with ui_data.region_notes;
+				
 				if exit_shift then
 					-- backwards
 					active_window gets WINDOW_DICTIONARY;
+				else
+					-- forwards
+					active_window gets WINDOW_NAV_CAMERA;
+				end if
+			end if
+		elseif active_window = WINDOW_NAV_CAMERA then
+			-- draw as active
+			call _sprites.draw with to _spritedata.tab_camera_highlight, EDITOR_BUTTON_CAMERA_X, EDITOR_BUTTON_CAMERA_Y;
+			
+			-- If enter or escape pressed, exit
+			variable input_buffer is u8 array size 2;
+			call _os.read_file with STDIN, 1, to input_buffer;
+			exit_char gets input_buffer index 0;
+			exit_shift gets exit_char and 0x80;
+			exit_char gets exit_char and 0x7F;
+			
+			if (exit_char = KEY_ESCAPE) or (exit_char = KEY_ENTER) then
+				-- escape = exit to camera
+				return ID_CAMERA;
+			elseif exit_char = KEY_TAB then
+				-- draw as inactive
+				call _sprites.draw with to _spritedata.tab_camera, EDITOR_BUTTON_CAMERA_X, EDITOR_BUTTON_CAMERA_Y;
+				
+				if exit_shift then
+					-- backwards
+					active_window gets WINDOW_NOTES;
+				else
+					-- forwards
+					active_window gets WINDOW_NAV_LAUNCH;
+				end if
+			end if
+		else --if active_window = WINDOW_NAV_LAUNCH then
+			-- draw as active
+			call _sprites.draw with to _spritedata.code_launch_highlight, EDITOR_BUTTON_LAUNCH_X, EDITOR_BUTTON_LAUNCH_Y;
+			
+			variable input_buffer is u8 array size 2;
+			call _os.read_file with STDIN, 1, to input_buffer;
+			exit_char gets input_buffer index 0;
+			exit_shift gets exit_char and 0x80;
+			exit_char gets exit_char and 0x7F;
+			
+			if exit_char = KEY_ENTER then
+				-- If enter pressed, launch
+				return (call compile_code with ui_data);
+			elseif exit_char = KEY_ESCAPE then
+				-- escape = exit to camera
+				return ID_CAMERA;
+			elseif exit_char = KEY_TAB then
+				-- draw as inactive
+				call _sprites.draw with to _spritedata.code_launch, EDITOR_BUTTON_LAUNCH_X, EDITOR_BUTTON_LAUNCH_Y;
+				
+				if exit_shift then
+					-- backwards
+					active_window gets WINDOW_NAV_CAMERA;
 				else
 					-- forwards
 					active_window gets WINDOW_CODE_EDITOR;
@@ -156,14 +252,96 @@ end function
 
 -- Run the camera
 function scene_camera of interface_data pointer ui_data returns u8 begin
-
+	-- draw background
+	call _sprites.draw with to _spritedata.camera_bg, 0, 0;
+	
+	variable active_window is u8 gets WINDOW_NAV_ARROWS;
+	variable last_update_time is u32 gets 0;
+	
+	-- highlight arrows
+	call _sprites.draw with to _spritedata.button_highlight_3dview_mirror, CAMERA_ARROW_LEFT_X, CAMERA_ARROW_LEFT_Y;
+	call _sprites.draw with to _spritedata.button_highlight_3dview, CAMERA_ARROW_RIGHT_X, CAMERA_ARROW_RIGHT_Y;
+	call _sprites.draw with to _spritedata.button_highlight_turtle_mirror, CAMERA_ARROW_UP_X, CAMERA_ARROW_UP_Y;
+	call _sprites.draw with to _spritedata.button_highlight_turtle, CAMERA_ARROW_DOWN_X, CAMERA_ARROW_DOWN_Y;
+	
+	-- set terminal bounds
+	call _editor.set_term_area with ui_data.region_turtle_output;
+	
+	-- enable game updates
+	call _periodic.set_updates_enabled with true;
+	
+	-- Loop
+	while true do
+		-- Periodically update graphics
+		variable time is u32 gets (call _periodic.time_ms with none);
+		
+		if (time - last_update_time) > UPDATE_PERIOD then
+			last_update_time gets time;
+			
+			-- Update turtles
+			
+			
+			-- Do graphics
+		end if
+		
+		-- Wait for interrupts
+		call _os.defer with none;
+		
+		variable input is u8 gets (call non_blocking_read with none);
+		
+		if input != 0 then
+			-- handle input
+			variable input_char is u8 gets input and 0x7F;
+			variable input_shift is u8 gets input and 0x80;
+			
+			if input_char = KEY_ESCAPE then
+				-- escape = switch to editor
+				call _periodic.set_updates_enabled with false;
+				return ID_EDITOR;
+			elseif input_char = KEY_TAB then
+				if active_window = WINDOW_NAV_ARROWS then
+					-- un-highlight arrows
+					call _sprites.draw with to _spritedata.button_nohighlight_3dview_mirror, CAMERA_ARROW_LEFT_X, CAMERA_ARROW_LEFT_Y;
+					call _sprites.draw with to _spritedata.button_nohighlight_3dview, CAMERA_ARROW_RIGHT_X, CAMERA_ARROW_RIGHT_Y;
+					call _sprites.draw with to _spritedata.button_nohighlight_turtle_mirror, CAMERA_ARROW_UP_X, CAMERA_ARROW_UP_Y;
+					call _sprites.draw with to _spritedata.button_nohighlight_turtle, CAMERA_ARROW_DOWN_X, CAMERA_ARROW_DOWN_Y;
+					
+					-- switch to code
+					active_window gets WINDOW_NAV_CODE;
+					
+					-- highlight code
+					call _sprites.draw with to _spritedata.tab_code_highlight, CAMERA_BUTTON_CODE_X, CAMERA_BUTTON_CODE_Y;
+				else --if active_window = WINDOW_NAV_CODE then
+					-- un-highlight code button
+					call _sprites.draw with to _spritedata.tab_code, CAMERA_BUTTON_CODE_X, CAMERA_BUTTON_CODE_Y;
+					
+					-- switch to arrows
+					active_window gets WINDOW_NAV_ARROWS;
+					
+					-- highlight arrows
+					call _sprites.draw with to _spritedata.button_highlight_3dview_mirror, CAMERA_ARROW_LEFT_X, CAMERA_ARROW_LEFT_Y;
+					call _sprites.draw with to _spritedata.button_highlight_3dview, CAMERA_ARROW_RIGHT_X, CAMERA_ARROW_RIGHT_Y;
+					call _sprites.draw with to _spritedata.button_highlight_turtle_mirror, CAMERA_ARROW_UP_X, CAMERA_ARROW_UP_Y;
+					call _sprites.draw with to _spritedata.button_highlight_turtle, CAMERA_ARROW_DOWN_X, CAMERA_ARROW_DOWN_Y;
+				end if
+			end if
+		end if
+	end while
 end function
 
 
 
 -- Main menu
 function scene_menu of interface_data pointer ui_data returns u8 begin
-
+	-- draw menu
+	call _sprites.draw with to _spritedata.title, 0, 0;
+	
+	-- wait for input
+	variable buff is u8 array size 2;
+	call _os.read_file with STDIN, 1, to buff;
+	
+	-- camera
+	return ID_CAMERA;
 end function
 
 
@@ -178,5 +356,42 @@ end function
 -- Compile code
 -- Show compilation window and output, choose to go back to editor or go to camera
 function compile_code of interface_data pointer ui_data returns u8 begin
+	-- Draw window
+	ui_data.region_code_output.background_color gets COLOR_BG_ACTIVE;
+	
+	call _sprites.draw with to _spritedata.message_code, EDITOR_WINDOW_X, EDITOR_WINDOW_Y;
+	call _editor.set_term_area with ui_data.region_code_output;
+	
+	-- compile code
+	call _forth.interop_push with ui_data.region_code_editor.buffer;
+	call _forth.interop_push with ui_data.region_code_editor.buffer_size as u32;
+	call _forth.interop_pcall with to _forth.fword_evaluate;
+	
+	variable buff is u8 array size 2;
+	call _os.read_file with STDIN, 1, to buff;
+	
+	return ID_EDITOR;
+end function
 
+
+
+-- Non-Blocking Read
+-- Read from stdin without blocking
+-- Returns 0 if no input
+function non_blocking_read of none returns u8 begin
+	-- Set stdin parameters to echo off, ansi off, blocking off
+	call _os.change_file_attr with 0, 0b0000;
+	
+	-- read
+	variable buffer is u8 array size 2;
+	variable amount is u32 gets (call _os.read_file with STDIN, 1, to buffer);
+	
+	-- Set stdin parameters to echo off, ansi off, blocking on
+	call _os.change_file_attr with 0, 0b0100;
+	
+	if amount = 0 then
+		return 0;
+	else
+		return buffer index 0;
+	end if
 end function

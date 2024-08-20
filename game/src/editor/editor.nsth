@@ -22,6 +22,7 @@ type text_region is structure of
 	background_color is u8,
 	
 	buffer is u8 pointer,	-- text data area
+	buffer_size is u16
 end type
 
 type xy_pair is structure of

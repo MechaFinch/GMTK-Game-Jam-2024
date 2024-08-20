@@ -13,6 +13,7 @@ out\text.obj
 out\forth.obj
 out\ivt.obj
 out\game.obj
+out\periodic.obj
 out\terminal.obj
 out\dma.obj
 out\palettes.obj

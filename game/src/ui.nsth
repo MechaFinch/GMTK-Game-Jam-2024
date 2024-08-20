@@ -17,7 +17,11 @@ library _editor from "editor/editor";
 type interface_data is structure of
 	region_code_editor is text_region pointer,
 	region_dictionary is text_region pointer,
-	region_notes is text_region pointer
+	region_notes is text_region pointer,
+	region_code_output is text_region pointer,
+	region_turtle_output is text_region pointer,
+	
+	fword_game_update is ptr
 end type
 
 -- Run the interface
@@ -34,3 +38,6 @@ external function _ui.scene_menu of interface_data pointer ui_data returns u8;
 
 -- Show the help menu
 external function _ui.scene_help of interface_data pointer ui_data returns u8;
+
+-- Show compilation window and output, choose to go back to editor or go to camera
+external function _ui.compile_code of interface_data pointer ui_data returns u8;
