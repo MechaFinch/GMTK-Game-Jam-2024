@@ -28,10 +28,11 @@ VARIABLE CURRENT-TURTLE-INDEX
     1 CURRENT-TURTLE-INDEX +!
 ;
 
+
 \ the turtle data struct the current index points to 
-\: CURRENT-TURTLE ( -- currentturtleaddr )
+\ : CURRENT-TURTLE ( -- currentturtleaddr )
 \    CURRENT-TURTLE-INDEX CELLS TURTLES-LIST +
-\;
+\ ;
 
 \ a turtle stores 
 \ x,y position on the grid 
@@ -49,7 +50,8 @@ VARIABLE ARR-DIRECTION  MAX-TURTLES CELLS ALLOT
 VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
 
 \ object pooler of turtle structs that get reused 
-\VARIABLE TURTLES-LIST
+\ VARIABLE TURTLES-LIST
+
 
 \ words to get specific properties of the turtle of specified index 
 : TURTLES[].ISACTIVE ( index -- isactive )
@@ -96,6 +98,24 @@ VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
 : TURTLES[CURRENT].COUNTDOWN ( -- countdown )
     CURRENT-TURTLE-INDEX TURTLES[].COUNTDOWN
 ;
+
+
+\ directions relative to current turtle facing 
+\ these return the coordinates of the tile referred to by this
+\ used by the player 
+: FORWARD ( -- x y )
+    
+;
+: BACK ( -- x y )
+
+;
+: LEFT ( -- x y )
+
+;
+: RIGHT ( -- x y )
+
+;
+
 
 \ inits an INACTIVE turtle at the current index with default starting values 
 : INIT-CURRENT-TURTLE-EMPTY 
@@ -209,34 +229,73 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 ;
 
 
-\ directions relative to turtle facing 
-: FORWARD ;
-: BACK ;
-: LEFT ;
-: RIGHT ;
 
-
-: SET-TURTLE-POSITION 
-
+\ just sets coordinates nothing else 
+: SET-TURTLE-POSITION ( x y -- )
+    TURTLES[CURRENT].Y !
+    TURTLES[CURRENT].X !
 ;
 
-\: EXECUTE-TILE-LOGIC-OVERLAP
+\ : EXECUTE-TILE-LOGIC-OVERLAP
     \ do whatever the tile does when the player lands on the tile 
-\;
-\: EXECUTE-TILE-LOGIC-EXAMINE
+\ ;
+\ : EXECUTE-TILE-LOGIC-EXAMINE
     \ do whatever the tile does when the player examines it
-\;
+\ ;
 \ TODO more of these 
+
+: MOVE-TO-TILE ( x y -- )
+    SET-TURTLE-POSITION 
+
+    \ do anything that needs to be done on this tile, and use TURTLES[CURRENT].COORDS to get the coords again 
+;
+
+: FAILED-INVALID-COORDINATES 
+    ." Could not move forward into a harsh mist! " CR
+;
+
+: FAILED-IMPASSABLE 
+    ." Could not move forward: impassable! " CR
+;
+
+
 
 
 \ moving the turtle 
+VARIABLE MOVING-TO-X 
+VARIABLE MOVING-TO-Y
 : MOVE-FORWARD 
-    \ VALIDATE-COORDINATES of what direction it's trying to move in 
-    \ if IS-PASSABLE 
-    \ SET-POSITION 
+    \ calculate the coordinates its moving to 
+    FORWARD
+    MOVING-TO-Y ! 
+    MOVING-TO-X !
 
+    \ TURTLES[CURRENT].X MOVING-TO-X !
+    \ TURTLES[CURRENT].DIRECTION.X MOVING-TO-X +!
+
+    \ TURTLES[CURRENT].Y MOVING-TO-Y !
+    \ TURTLES[CURRENT].DIRECTION.Y MOVING-TO-Y +!
+
+    \ VALIDATE-COORDINATES of what direction it's trying to move in
+    MOVING-TO-X MOVING-TO-Y VALIDATE-COORDINATES IF 
+
+        \ if IS-PASSABLE 
+        MOVING-TO-X MOVING-TO-Y IS-PASSABLE IF 
+            MOVE-TO-TILE
+        ELSE 
+            FAILED-IMPASSABLE 
+        THEN
+    ELSE 
+        FAILED-INVALID-COORDINATES
+    THEN 
 ;
 
+
+
+
+: SET-TURTLE-DIRECTION 
+
+;
 
 \ rotating the current turtle 
 : TURN-RIGHT 
@@ -246,9 +305,7 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 
 ;
 
-: SET-TURTLE-DIRECTION 
 
-;
 
 \ examine the thing in front of the current turtle. will count towards discoveries 
 : EXAMINE-AHEAD 

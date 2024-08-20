@@ -29,8 +29,8 @@ VARIABLE DISCOVERIES-COUNT
     METAL-COUNT
 ;
 
-\VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
-\: DISCOVERIES[]  ( discovery # -- addr ) CELLS DISCOVERIES + ; \ get the discovery at this index 
+\ VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
+\ : DISCOVERIES[]  ( discovery # -- addr ) CELLS DISCOVERIES + ; \ get the discovery at this index 
 
 
 : INIT-SHIP-RESOURCES 
@@ -39,9 +39,9 @@ VARIABLE DISCOVERIES-COUNT
     DISCOVERIES-STARTING DISCOVERIES-COUNT !
     
     \ init all discoveries as false to start with 
-    \DISCOVERIES-TOTAL 0 DO 
+    \ DISCOVERIES-TOTAL 0 DO 
     \    FALSE I DISCOVERIES[] !
-    \LOOP
+    \ LOOP
 ;
 
 
@@ -61,8 +61,8 @@ VARIABLE DISCOVERIES-COUNT
 ;
 
 
-\: CHECK-IF-DISCOVERED 
-\;
+\ : CHECK-IF-DISCOVERED 
+\ ;
 
 
 : WIN-GAME 
