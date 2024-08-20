@@ -242,25 +242,38 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 \ this file relies on turtles.fs
 
 \ what happens when the current turtle overlaps the current tile 
+VARIABLE OVERLAPPING-TILE-TYPE
 : OVERLAP-TILE ( x y -- )
     \ TODO effectively a switch statement based on the tile type id determining what happens 
     \ we can also print stuff here 
 
-    \ clear: nothing happens
+    GET-TILE-TYPEID OVERLAPPING-TILE-TYPE !
 
+    
     \ artifact: artifact added, removed from tile 
+    OVERLAPPING-TILE-TYPE TID-ARTIFACT = IF 
+        PICK-UP-ARTIFACT
+    THEN
+
+    \ acid: hurts you
+    OVERLAPPING-TILE-TYPE TID-ACID = IF 
+        DAMAGE-TURTLE 
+    THEN
+
+    \ fuel and metal are not automatically picked up I guess? since there's a word for it?
 
     \ fuel 
 
     \ metal 
 
-    \ something dangerous 
+    \ clear, ect: nothing happens
 
 ;
 \ : EXECUTE-TILE-LOGIC-EXAMINE
     \ do whatever the tile does when the player examines it
 \ ;
 \ TODO more of these 
+
 
 
 
@@ -336,29 +349,33 @@ VARIABLE MOVING-TO-Y
 
 \ examine the thing in front of the current turtle. will count towards discoveries 
 : EXAMINE-AHEAD 
-
+    \ return the tile id ie the int 
+    FORWARD GET-TILE-TYPEID 
 ;
 
 
 \ is there something on the tile of the current turtle 
 : IS-METAL-ON-CURRENT-TILE ( -- bool )
-
+    TURTLES[CURRENT].COORDS IS-METAL-ON-TILE
 ;
 : IS-FUEL-ON-CURRENT-TILE ( -- bool )
-
+    TURTLES[CURRENT].COORDS IS-FUEL-ON-TILE
 ;
 
 
 : PICK-UP-FUEL 
-    \ TODO provide coordinates for the below
-    REMOVE-ITEM-ON-TILE
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE
     ADD-FUEL
 ;
 
 : PICK-UP-METAL 
-    \ TODO provide coordinates for the below
-    REMOVE-ITEM-ON-TILE 
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE 
     ADD-METAL 
+;
+
+: PICK-UP-ARTIFACT
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE
+    ADD-DISCOVERY
 ;
 
 \ pick up the thing it's on right now 
@@ -366,8 +383,15 @@ VARIABLE MOVING-TO-Y
     \ pick up whatever's on the tile of the given coordinates
 
     \ IF there was fuel on the tile 
-
+    IS-FUEL-ON-CURRENT-TILE IF 
+        PICK-UP-FUEL 
+    ELSE 
+    THEN
     \ IF there was metal on the tile 
+    IS-METAL-ON-CURRENT-TILE IF
+        PICK-UP-METAL 
+    ELSE 
+    THEN
     
 ;
 \ if it's fuel or metal, it gets added 
@@ -384,16 +408,23 @@ VARIABLE MOVING-TO-Y
 
 \ check if current turtle should die 
 : CHECK-TURTLE-DEATH 
-
+    TURTLES[CURRENT].HP 0 <= IF 
+        TURTLE-DIES 
+    ELSE 
+    THEN
 ;
 
 : DAMAGE-TURTLE
-    \ decrement turtle hp 
+
+    \ TODO decrement turtle hp 
+
     CHECK-TURTLE-DEATH
 ;
 
 \ run the logic of a turtle 
 : TICK-TURTLE
+
+    \ TODO the counter ticking down to represent corrosive whatever 
     
     CHECK-TURTLE-DEATH
 ;

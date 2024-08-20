@@ -82,7 +82,7 @@ Exploring the World
 
 - EXAMINE-AHEAD 
 
-Returns an interpretation of what is in front of the Turtle as a Word, based on the direction it's facing. If this is an ARTIFACT, it will automatically be fully scanned and the information \[unrecoverable]. This is the goal of this research mission.
+Returns an interpretation of what is in front of the Turtle as a Word, based on the direction it's facing.
 
 In addition to these commands, as your Turtles explore the surface, they'll come up with new Words for things they discover, just like how they come with words for METAL and FUEL. These will be added to your Dictionary as new forms are encountered with EXAMINE-AHEAD.
 
@@ -111,6 +111,7 @@ Collection of Resources
 - PICK-UP 
 
 A Turtle can pick up METAL and FUEL it encounters if instructed. Since your research ship is likely also equipped with an [unrecoverable], you'll be able to utilize these anywhere.
+If this is an ARTIFACT, it will automatically be fully scanned and the information \[unrecoverable]. This is the goal of this research mission.
 
 - GET-FUEL-AMT 
 - GET-METAL-AMT

@@ -173,15 +173,20 @@ VARIABLE STIDV
         MAP-SIZE 1 - 1 DO 
             DUP 
             I 
+            \ choose a type 
             TID-CLEAR SET-TILE-TYPEID
         LOOP
     LOOP 
 
+    \ TODO we can make this random as well with variables 
     \ set artifacts 
     3 13 TID-ARTIFACT SET-TILE-TYPEID 
     11 14 TID-ARTIFACT SET-TILE-TYPEID 
     7 7 TID-ARTIFACT SET-TILE-TYPEID
     18 9 TID-ARTIFACT SET-TILE-TYPEID
+
+    \ set everything around artifacts to clear to make it easier 
+    \ TODO 
 ;
 
 
