@@ -33,7 +33,8 @@ type interface_data is structure of
 	fword_metal_count is ptr,		-- ( -- addr )
 	fword_disco_count is ptr,		-- ( -- addr )
 	fword_max_turtles is ptr,		-- ( -- n )
-	fword_turtle_get_active is ptr	-- ( index -- flag )
+	fword_turtle_get_active is ptr,	-- ( index -- flag )
+	fword_fuel_win is ptr			-- ( -- n )
 end type
 
 -- Run the interface
