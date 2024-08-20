@@ -242,7 +242,7 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 \ this file relies on turtles.fs
 
 \ what happens when the current turtle overlaps the current tile 
-: OVERLAP-TILE 
+: OVERLAP-TILE ( x y -- )
     \ TODO effectively a switch statement based on the tile type id determining what happens 
     \ we can also print stuff here 
 
@@ -265,10 +265,20 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 
 
 
-
+VARIABLE MTT-X 
+VARIABLE MTT-Y
 : MOVE-TO-TILE ( x y -- )
-    SET-TURTLE-POSITION 
-    OVERLAP-TILE
+
+    MTT-Y ! 
+    MTT-X ! 
+
+    \ TODO set current turtle coordinates 
+
+    MTT-X MTT-Y SET-TURTLE-POSITION 
+
+    MTT-X MTT-Y DISCOVER-TILE
+
+    MTT-X MTT-Y OVERLAP-TILE
 
     \ do anything that needs to be done on this tile, and use TURTLES[CURRENT].COORDS to get the coords again 
 ;
@@ -341,13 +351,13 @@ VARIABLE MOVING-TO-Y
 
 : PICK-UP-FUEL 
     \ TODO provide coordinates for the below
-    REMOVE-FUEL-TILE
+    REMOVE-ITEM-ON-TILE
     ADD-FUEL
 ;
 
 : PICK-UP-METAL 
     \ TODO provide coordinates for the below
-    REMOVE-METAL-TILE 
+    REMOVE-ITEM-ON-TILE 
     ADD-METAL 
 ;
 
