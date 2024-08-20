@@ -248,6 +248,8 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
     
     \ reset current turtle counter to what it was at before not the new turtle 
     CURRENT-TURTLE-INDEX-STORAGE @ CURRENT-TURTLE-INDEX !
+
+    ." Created a Turtle! "
 ;
 
 : FAILED-CREATE-TURTLE-METAL
@@ -418,8 +420,6 @@ VARIABLE MTT-Y
 
 
 
-
-
 \ moving the turtle 
 VARIABLE MOVING-TO-X 
 VARIABLE MOVING-TO-Y
@@ -434,6 +434,7 @@ VARIABLE MOVING-TO-Y
 
         \ if IS-PASSABLE 
         MOVING-TO-X @ MOVING-TO-Y @ IS-PASSABLE IF 
+            ." Moving forward "
             MOVE-TO-TILE
         ELSE 
             FAILED-IMPASSABLE 
