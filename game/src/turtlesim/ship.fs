@@ -27,10 +27,10 @@ VARIABLE METAL-COUNT
 VARIABLE DISCOVERIES-COUNT
 
 \ getters for the player (almost had a really funny oversight where the player would just be able to set their own fuel and metal values... hahaha)
-: GET-FUEL-COUNT 
+: GET-FUEL-AMT
     FUEL-COUNT
 ;
-: GET-METAL-COUNT 
+: GET-METAL-AMT
     METAL-COUNT
 ;
 

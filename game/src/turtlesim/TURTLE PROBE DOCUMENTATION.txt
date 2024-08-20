@@ -112,8 +112,8 @@ Collection of Resources
 
 A Turtle can pick up METAL and FUEL it encounters if instructed. Since your research ship is likely also equipped with an [unrecoverable], you'll be able to utilize these anywhere.
 
-- GET-FUEL-COUNT 
-- GET-METAL-COUNT 
+- GET-FUEL-AMT 
+- GET-METAL-AMT
 
 These refer to the total amount of METAL and FUEL collected.
 
@@ -121,7 +121,7 @@ These refer to the total amount of METAL and FUEL collected.
 Self-Replication 
 ---------------- 
 
-- SELF-REPLICATE 
+- CLONE-SELF
 A Turtle can construct a copy of itself provided you have enough METAL and FUEL.
 
 - MAX-TURTLES 

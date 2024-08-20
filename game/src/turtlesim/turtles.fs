@@ -224,7 +224,7 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 ;
 
 \ the user-facing word for creating a turtle 
-: SELF-REPLICATE
+: CLONE-SELF
     TRY-CREATE-TURTLE
 ;
 
