@@ -54,6 +54,18 @@ function main of none begin
 	constant str_commit_editor is string gets "commit-editor";
 	variable fw_commit_editor is ptr gets (call _fs.find with to str_commit_editor, sizeof str_commit_editor);
 	
+	constant str_tile_sprite_id is string gets "GET-TILE-SPRITE-ID";
+	variable fw_tile_sprite_id is ptr gets (call _fs.find with to str_tile_sprite_id, sizeof str_tile_sprite_id);
+	
+	constant str_ended_win is string gets "IS-ENDED-WIN";
+	variable fw_ended_win is ptr gets (call _fs.find with to str_ended_win, sizeof str_ended_win);
+	
+	constant str_ended_loss is string gets "IS-ENDED-LOSS";
+	variable fw_ended_loss is ptr gets (call _fs.find with to str_ended_loss, sizeof str_ended_loss);
+	
+	constant str_ending_text is string gets "PRINT-ENDING-TEXT";
+	variable fw_ending_text is ptr gets (call _fs.find with to str_ending_text, sizeof str_ending_text);
+	
 	-- Hide words
 	call _fs.hide_words with none;
 	
@@ -71,7 +83,11 @@ function main of none begin
 		
 		fword_game_update gets fw_game_update,
 		fword_compile_editor gets fw_compile_editor,
-		fword_commit_editor gets fw_commit_editor
+		fword_commit_editor gets fw_commit_editor,
+		fword_tile_sprite_id gets fw_tile_sprite_id,
+		fword_ended_win gets fw_ended_win,
+		fword_ended_loss gets fw_ended_loss,
+		fword_ending_text gets fw_ending_text
 	end structure;
 	
 	-- TODO: Init sprite tables
