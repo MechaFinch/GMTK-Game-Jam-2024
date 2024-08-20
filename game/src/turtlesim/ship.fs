@@ -14,6 +14,14 @@ VARIABLE FUEL-COUNT
 VARIABLE METAL-COUNT
 VARIABLE DISCOVERIES-COUNT
 
+\ getters for the player (almost had a really funny oversight where the player would just be able to set their own fuel and metal values... hahaha)
+: GET-FUEL-COUNT 
+    FUEL-COUNT
+;
+: GET-METAL-COUNT 
+    METAL-COUNT
+;
+
 VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
 : DISCOVERIES[]  ( discovery # -- addr ) CELLS DISCOVERIES + ; \ get the discovery at this index 
 
@@ -60,7 +68,9 @@ VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
 ;
 
 
-: CHECK-IF-DISCOVERED ;
+: CHECK-IF-DISCOVERED 
+
+;
 
 \ create a turtle IF there's enough resources 
 : TRY-CREATE-TURTLE 

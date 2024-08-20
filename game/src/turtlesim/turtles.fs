@@ -168,6 +168,11 @@ VARIABLE TURTLES-LIST
     GET-OPEN-TURTLE-SLOT CREATE-TURTLE \ create turtle at the next open index
 ;
 
+\ the user-facing word for creating a turtle 
+: SELF-REPLICATE
+    TRY-CREATE-TURTLE
+;
+
 
 \ directions relative to turtle facing 
 : FORWARD ;

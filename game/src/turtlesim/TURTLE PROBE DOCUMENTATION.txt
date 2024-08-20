@@ -1,0 +1,106 @@
+
+[ SHIP COMPUTER'S NOTE: The contents of this file suffered from bit rot due to prolonged exposure to intersolar radiation during transit. The following is a collection of what I could recover. ]
+
+
+Hello User! 
+
+[unrecoverable]
+
+
+FOURTH Basics 
+=============
+
+[ Mostly unrecoverable, but I recommend the ancient 20th-century tome 'Starting FORTH' (https://www.forth.com/starting-forth/). Here's some fragments: ]
+
+FORTH is a stack-based language composed of Words (representing values or operations) evaluated left to right.
+
+For example, instead of '1 + 2', you'd write '1 2 +'.
+
+Defining a variable: 
+VARIABLE VAR
+
+Setting VAR to 0: 
+0 VAR ! 
+
+Incrementing VAR by 1: 
+1 VAR +!
+
+Adding 0 through 9 to the stack:
+10 0 DO I LOOP
+
+Adding TRUE to the stack if VAR is less than 3: 
+3 VAR < IF TRUE ELSE FALSE THEN
+
+Duplicating what's on the stack: 
+DUP
+
+Defining a new Word that increments what's on the stack by 3:
+: MYWORD 3 +! ;
+
+
+Words 
+=====
+
+Useful Constants 
+----------------
+
+Relative to the world: 
+- NORTH 
+- SOUTH 
+- EAST 
+- WEST 
+
+Relative to the direction the Turtle is facing: 
+- FORWARD 
+- BACK 
+- LEFT 
+- RIGHT
+
+These Direction constants come in the form X Y where X and Y are integers and NORTH is 0 1.
+
+Material identified as useful resources: 
+- METAL 
+- FUEL 
+
+Material identified as crucial to the research mission: 
+- ARTIFACT
+
+
+Moving your Turtle 
+------------------
+
+- MOVE-FORWARD
+- TURN-RIGHT
+- TURN-LEFT
+
+Your Turtle will move in the direction it's currently facing. 
+
+
+Exploring the World 
+-------------------
+
+- EXAMINE-AHEAD 
+
+Returns an interpretation of what is in front of the Turtle as a Word, based on the direction it's facing. If this is an ARTIFACT, it will automatically be fully scanned and the information \[unrecoverable]. This is the goal of this research mission.
+
+In addition to these commands, as your Turtles explore the surface, they'll come up with new Words for things they discover, just like how they come with words for METAL and FUEL. These will be added to your Dictionary as new forms are encountered with EXAMINE-AHEAD.
+
+
+Collection of Resources 
+-----------------------
+
+- PICK-UP 
+
+A Turtle can pick up METAL and FUEL it encounters if instructed. Since your research ship is likely also equipped with an [unrecoverable], you'll be able to utilize these anywhere.
+
+- GET-FUEL-COUNT 
+- GET-METAL-COUNT 
+
+These refer to the total amount of METAL and FUEL collected.
+
+
+Self-Replication 
+---------------- 
+
+- SELF-REPLICATE 
+A Turtle can construct a copy of itself provided you have enough METAL and FUEL.
