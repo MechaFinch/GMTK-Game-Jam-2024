@@ -17,6 +17,8 @@ define ID_MAIN_MENU is 0;
 define ID_CAMERA is 1;
 define ID_EDITOR is 2;
 define ID_HELP is 3;
+define ID_WIN is 4;
+define ID_LOSS is 5;
 
 define WINDOW_CODE_EDITOR is 0;
 define WINDOW_DICTIONARY is 1;
@@ -64,6 +66,23 @@ define CAMERA_BUTTON_CAMERA_Y is 217;
 define CAMERA_BUTTON_CODE_X is 168;
 define CAMERA_BUTTON_CODE_Y is 217;
 
+define CAMERA_MAP_START_X is 16;
+define CAMERA_MAP_START_Y is 16;
+define CAMERA_MAP_WIDTH is 20;
+define CAMERA_MAP_HEIGHT is 20;
+define CAMERA_MAP_TILE_SIZE is 4;
+define CAMERA_MAP_PWIDTH is CAMERA_MAP_WIDTH * CAMERA_MAP_TILE_SIZE;
+define CAMERA_MAP_PHEIGHT is CAMERA_MAP_HEIGHT * CAMERA_MAP_TILE_SIZE;
+
+define TID_UNDISCOVERED is 0;
+define TID_CLEAR is 1;
+define TID_CLIFF is 2;
+define TID_METAL is 3;
+define TID_FUEL is 4;
+define TID_ARTIFACT is 5;
+define TID_ACID is 6;
+define TID_CONES is 7;
+
 define UPDATE_PERIOD is 200; -- 5 u/s
 
 define KEY_ENTER is 0x0A;
@@ -83,6 +102,10 @@ function run_interface of interface_data pointer ui_data returns none begin
 			next_scene gets (call scene_editor with ui_data);
 		elseif next_scene = ID_HELP then
 			next_scene gets (call scene_help with ui_data);
+		elseif next_scene = ID_WIN then -- win/loss will reset the game
+			call scene_win with ui_data;
+		elseif next_scene = ID_LOSS then
+			call scene_loss with ui_data;
 		else
 			next_scene gets ID_MAIN_MENU; -- fallback
 		end if
@@ -287,8 +310,32 @@ function scene_camera of interface_data pointer ui_data returns u8 begin
 			call _forth.interop_pcall with ui_data.fword_game_update;
 			
 			-- Check win/loss
+			call _forth.interop_pcall with ui_data.fword_ended_win;
+			variable flag_end is u32 gets (call _forth.interop_pop with none);
+			
+			if flag_end then
+				return ID_WIN;
+			end if
+			
+			call _forth.interop_pcall with ui_data.fword_ended_loss;
+			flag_end gets (call _forth.interop_pop with none);
+			
+			if flag_end then
+				return ID_LOSS;
+			end if
 			
 			-- Do graphics
+			-- Draw map
+			call _sprites.draw_part with to _spritedata.camera_bg, CAMERA_MAP_START_X, CAMERA_MAP_START_Y, CAMERA_MAP_START_X, CAMERA_MAP_START_Y, CAMERA_MAP_PWIDTH, CAMERA_MAP_PHEIGHT;
+			
+			for x is u16 gets 0; x < CAMERA_MAP_WIDTH; x gets x + 1 do
+				for y is u16 gets 0; y < CAMERA_MAP_HEIGHT; y gets y + 1 do
+					call _forth.interop_push with x as u32;
+					call _forth.interop_push with y as u32;
+					call _forth.interop_pcall with ui_data.fword_tile_sprite_id;
+					variable tile_id is u8 gets (call _forth.interop_pop with none) as u8;
+				end for
+			end for
 		end if
 		
 		-- Wait for interrupts
@@ -360,6 +407,20 @@ end function
 -- Help menu
 function scene_help of interface_data pointer ui_data returns u8 begin
 
+end function
+
+
+
+-- Win
+function scene_win of interface_data pointer ui_data returns none begin
+	call _os.exit with none;
+end function
+
+
+
+-- Loss
+function scene_loss of interface_data pointer ui_data returns none begin
+	call _os.exit with none;
 end function
 
 

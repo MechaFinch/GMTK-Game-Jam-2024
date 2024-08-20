@@ -63,3 +63,12 @@ VARIABLE user-update-word
 ;
 
 init-glue
+
+\
+\ PLACEHOLDERS
+\
+
+: GET-TILE-SPRITE-ID ( x y -- id ) 2DROP 0 ;
+: IS-ENDED-WIN ( -- flag ) FALSE ;
+: IS-ENDED-LOSS ( -- flag ) FALSE ;
+: PRINT-ENDING-TEXT ( -- ) ;
