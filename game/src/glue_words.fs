@@ -4,6 +4,7 @@
 : VARIABLE CREATE 1 CELLS ALLOT ;
 : CONSTANT CREATE , DOES> @ ;
 : >= ( a b -- flag ) 2DUP > -ROT = OR ;
+: <= ( a b -- flag ) 2DUP < -ROT = OR ;
 
 \ Compile editor contents
 \ Really just a CATCH around EVALUATE
@@ -80,4 +81,4 @@ VARIABLE v_placeholder
 : METAL-COUNT ( -- addr ) v_placeholder ;
 : DISCOVERIES-COUNT ( -- addr ) v_placeholder ;
 : MAX-TURTLES ( -- n ) 20 ;
-: TURTLES[].ISACTIVE ( index -- flag ) ;
+: TURTLES[].ISACTIVE ( index -- flag ) DROP FALSE ;

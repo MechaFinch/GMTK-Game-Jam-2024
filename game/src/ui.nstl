@@ -421,9 +421,22 @@ function scene_camera of interface_data pointer ui_data returns u8 begin
 			call _forth.interop_pcall with to _forth.fword_cr;
 			call _forth.interop_pcall with to _forth.fword_cr;
 			
-			call _editor.set_term_area with ui_data.region_turtle_output;
+			if disco_count >= 1 then
+				call _sprites.draw_transparent with to _spritedata.artefact_urn, 240, 88;
+				
+				if disco_count >= 2 then
+					call _sprites.draw_transparent with to _spritedata.artefact_tablet, 240 + 16, 88;
+					
+					if disco_count >= 3 then
+						call _sprites.draw_transparent with to _spritedata.artefact_skull, 240 + 32, 88;
+						
+						if disco_count >= 4 then
+							call _sprites.draw_transparent with to _spritedata.artefact_amulet, 240 + 48, 88;
+						end if
+					end if
+				end if
+			end if
 			
-			ui_data.region_turtle_output.background_color gets COLOR_BG_ACTIVE;
 			call _editor.set_term_area with ui_data.region_turtle_output;
 			call _util.unbuffer_screen with none;
 		end if
