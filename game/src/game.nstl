@@ -115,8 +115,12 @@ function main of none begin
 		fword_fuel_win gets fw_fuel_win
 	end structure;
 	
-	-- TODO: place turtlesim/playerdictionary.txt in region_dictionary.buffer
+	-- populate regions
+	constant str_default_update is string gets ": UPDATE ( -- ) ;";
+	call _util.memcopy with to str_default_update, ui_data.region_code_editor.buffer, sizeof str_default_update;
+	
 	call _util.memcopy with to _fs.playerdictionary, ui_data.region_dictionary.buffer, 29 * 14;
+	call _util.memcopy with to _fs.defaultnotes, ui_data.region_notes.buffer, 10 * 14;
 		
 	call _ui.run_interface with to ui_data;
 	
