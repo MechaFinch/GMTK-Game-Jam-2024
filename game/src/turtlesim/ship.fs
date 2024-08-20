@@ -98,13 +98,16 @@ VARIABLE DISCOVERIES-COUNT
 
 : ADD-FUEL 
     1 FUEL-COUNT @ +!
+    ." Gathered FUEL "
     TRY-FUEL-WIN
 ;
 : ADD-METAL 
     1 METAL-COUNT @ +!
+    ." Gathered METAL "
 ;
 : ADD-DISCOVERY 
     1 DISCOVERIES-COUNT @ +!
+    ." Discovered an ARTIFACT! "
 ;
 
 

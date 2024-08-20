@@ -17,7 +17,6 @@
     0 SET-CURRENT-TURTLE
 
     TRY-CREATE-TURTLE
-    TRY-CREATE-TURTLE
 ;
 
 \ our equivalent of any game engine's update

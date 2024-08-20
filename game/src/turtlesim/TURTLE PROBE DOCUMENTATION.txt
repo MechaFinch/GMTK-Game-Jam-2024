@@ -6,6 +6,11 @@ Hello User!
 
 [unrecoverable]
 
+Write your code beginning with ': UPDATE ' and ending with ' ; '.
+: UPDATE 
+    your code here 
+;
+
 Collect as much data as you can here. 
 
 When the ship is fully refuelled, it will automatically take off and return home with whatever data you've collected.
