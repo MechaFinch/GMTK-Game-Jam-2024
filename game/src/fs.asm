@@ -383,5 +383,5 @@ find:
 	JMP .ret
 
 
-playerdictionary:
-	incbin "turtlesim/playerdictionary.txt"
+playerdictionary:	incbin "turtlesim/playerdictionary.txt"
+defaultnotes:		incbin "turtlesim/defaultnotes.txt"
