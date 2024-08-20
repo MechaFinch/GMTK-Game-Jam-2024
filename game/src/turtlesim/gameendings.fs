@@ -59,19 +59,19 @@
 ;
 
 : PRINT-END-ART-SOME 
-    ."       MISSION RESULTS:    " CR
-    ."           SUCCESS         " CR
-    ." SOME ARTIFACTS DISCOVERED " CR
-    ."                           " CR
-    ." The piecemeal data you    " CR
-    ." safely return with        " CR
-    ." breathes newlife into the " CR
-    ." study of the distant moon." CR
-    ." The imaginations of       " CR
-    ." academia and the public   " CR
-    ." have been captured.       " CR
-    ." Yours will not be the last" CR
-    ." mission sent to MOONGRAVE." CR
+    ."       MISSION RESULTS:    " 
+    ."           SUCCESS         " 
+    ." SOME ARTIFACTS DISCOVERED " 
+    ."                           " 
+    ." The piecemeal data you    " 
+    ." safely return with        " 
+    ." breathes newlife into the " 
+    ." study of the distant moon." 
+    ." The imaginations of       " 
+    ." academia and the public   " 
+    ." have been captured.       " 
+    ." Yours will not be the last" 
+    ." mission sent to MOONGRAVE." 
 ;
 
 : PRINT-END-ART-NONE
