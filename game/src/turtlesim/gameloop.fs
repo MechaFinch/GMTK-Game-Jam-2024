@@ -30,14 +30,13 @@ VARIABLE IS-ENDED-LOSS
     CURRENT-TURTLE++
 
     \ if reached the max number of turtles, set it back to 0 
-    MAX-TURTLES CURRENT-TURTLE-INDEX >= IF 
+    MAX-TURTLES CURRENT-TURTLE-INDEX <= IF 
         0 SET-CURRENT-TURTLE
     THEN 
 ;
 
 : PRINT-START-TEXT 
-    MISSION BRIEFING
-
-    
+    ." MISSION BRIEFING " CR
+    \ TODO?
 ;
 

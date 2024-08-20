@@ -104,12 +104,12 @@ VARIABLE TURTLES-LIST
     \ TODO create empty turtles 
 ;
 
-: HAS-SPACE-FOR-NEW-TURTLE
+: HAS-SPACE-FOR-NEW-TURTLE ( -- bool )
     \ use MAX-TURTLES and the ship turtle count 
-    MAX-TURTLES < IF 
-        true
+    TURTLE-COUNT MAX-TURTLES < IF 
+        TRUE
     ELSE 
-        false
+        FALSE
     THEN 
 ;
 

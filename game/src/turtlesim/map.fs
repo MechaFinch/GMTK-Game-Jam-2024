@@ -57,10 +57,10 @@
 -1 CONSTANT WEST-X 
 0 CONSTANT WEST-Y
 
-: NORTH NORTH-X NORTH-Y ;
-: SOUTH SOUTH-X SOUTH-Y ;
-: EAST EAST-X EAST-Y ;
-: WEST WEST-X WEST-Y ;
+: NORTH     NORTH-X NORTH-Y ;
+: SOUTH     SOUTH-X SOUTH-Y ;
+: EAST      EAST-X  EAST-Y ;
+: WEST      WEST-X  WEST-Y ;
 
 \ add 2 coordinates 
 \ TODO use locals later
@@ -76,10 +76,10 @@ VARIABLE +COORDY
 
 \ is a single coordinate within the size of the map?
 : VALIDATE-COORDINATE ( x -- bool )
-    MAP-SIZE >= IF 
-        true
+    MAP-SIZE <= IF 
+        TRUE
     ELSE 
-        false
+        FALSE
     THEN 
 ;
 
@@ -87,12 +87,12 @@ VARIABLE +COORDY
 : VALIDATE-COORDINATES ( x y -- bool )
     VALIDATE-COORDINATE IF 
         VALIDATE-COORDINATE IF 
-            true 
+            TRUE
         ELSE 
-            false 
+            FALSE
         THEN
     ELSE 
-        false
+        FALSE
     THEN 
 ;
 

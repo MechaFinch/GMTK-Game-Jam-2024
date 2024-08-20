@@ -21,7 +21,43 @@ compile:
 	PUSHW ptr hello_world
 	CALL compile_file
 	ADD SP, 8
+
+	PUSHW ptr [gameendings.len]
+	PUSHW ptr gameendings
+	CALL compile_file
+	ADD SP, 8
+
+	PUSHW ptr [ship.len]
+	PUSHW ptr ship
+	CALL compile_file
+	ADD SP, 8
+
+	PUSHW ptr [map.len]
+	PUSHW ptr map
+	CALL compile_file
+	ADD SP, 8
+
+	PUSHW ptr [turtles.len]
+	PUSHW ptr turtles
+	CALL compile_file
+	ADD SP, 8
+
+	PUSHW ptr [library.len]
+	PUSHW ptr library
+	CALL compile_file
+	ADD SP, 8
+
+	PUSHW ptr [playercode.len]
+	PUSHW ptr playercode
+	CALL compile_file
+	ADD SP, 8
+
+	PUSHW ptr [gameloop.len]
+	PUSHW ptr gameloop
+	CALL compile_file
+	ADD SP, 8
 	
+
 	POPW BP
 	RET
 
@@ -33,6 +69,48 @@ hello_world:
 	incbin "hello_world.fs"
 .len:
 	dp hello_world.len - hello_world
+
+gameendings:
+.start:
+incbin "turtlesim/gameendings.fs"
+.len:
+dp .len - .start
+
+ship:
+.start:
+incbin "turtlesim/ship.fs"
+.len:
+dp .len - .start
+
+map:
+.start:
+incbin "turtlesim/map.fs"
+.len:
+dp .len - .start
+
+turtles:
+.start:
+incbin "turtlesim/turtles.fs"
+.len:
+dp .len - .start
+
+library:
+.start:
+incbin "turtlesim/library.fs"
+.len:
+dp .len - .start
+
+playercode:
+.start:
+incbin "turtlesim/playercode.fs"
+.len:
+dp .len - .start
+
+gameloop:
+.start:
+incbin "turtlesim/gameloop.fs"
+.len:
+dp .len - .start
 
 
 
