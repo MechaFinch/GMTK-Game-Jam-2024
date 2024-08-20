@@ -11,7 +11,7 @@
 \ a print statement of the description (wishlist item for after the jam)
 
 
-: INIT-USER-WORLD-DICTIONARY
+: INIT-USER-WORD-DICTIONARY
 
 
 ;

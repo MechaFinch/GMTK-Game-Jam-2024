@@ -115,10 +115,7 @@ function main of none begin
 		fword_fuel_win gets fw_fuel_win
 	end structure;
 	
-	-- TODO: Init sprite tables
-	-- call forth word TSPR-<name> ( -- x )
-	-- associate x with sprite
-	
+	-- TODO: place turtlesim/playerdictionary.txt in region_dictionary.buffer
 	constant str_1 is string gets "Reference text 1";
 	constant str_2 is string gets "Reference text 2";
 	constant str_3 is string gets "Reference text 3";

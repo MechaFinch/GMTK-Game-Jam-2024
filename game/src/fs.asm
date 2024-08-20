@@ -307,7 +307,7 @@ hide_words:
 	RET
 
 hidden_words:
-	;incbin "turtlesim/UserHiddenWords.txt"
+	incbin "turtlesim/UserHiddenWords.txt"
 .len:
 	dp hidden_words.len - hidden_words
 

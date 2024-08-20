@@ -138,6 +138,9 @@ VARIABLE MAP MAP-SIZE 2 * CELLS ALLOT
 \ : GET-TILE ( x y -- tile )
 \ ;
 
+: TYPE[]PASSABLE ( id -- bool )
+;
+
 : IS-PASSABLE ( x y -- bool )
     \ is the tile at the given coordinates passable? returns true if so
     GET-TILE-TYPEID TYPE[]PASSABLE
