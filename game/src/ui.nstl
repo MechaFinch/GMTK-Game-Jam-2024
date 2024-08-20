@@ -312,14 +312,16 @@ function scene_camera of interface_data pointer ui_data returns u8 begin
 			
 			-- Check win/loss
 			call _forth.interop_pcall with ui_data.fword_ended_win;
-			variable flag_end is u32 gets (call _forth.interop_pop with none);
+			--variable flag_end is u32 gets (call _forth.interop_pop with none);
+			variable flag_end is u32 gets u32 at (call _forth.interop_pop with none);
 			
 			if flag_end then
 				return ID_WIN;
 			end if
 			
 			call _forth.interop_pcall with ui_data.fword_ended_loss;
-			flag_end gets (call _forth.interop_pop with none);
+			--flag_end gets (call _forth.interop_pop with none);
+			flag_end gets u32 at (call _forth.interop_pop with none);
 			
 			if flag_end then
 				return ID_LOSS;
