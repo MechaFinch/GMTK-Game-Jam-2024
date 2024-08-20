@@ -66,6 +66,21 @@ function main of none begin
 	constant str_ending_text is string gets "PRINT-ENDING-TEXT";
 	variable fw_ending_text is ptr gets (call _fs.find with to str_ending_text, sizeof str_ending_text);
 	
+	constant str_fuel_count is string gets "FUEL-COUNT";
+	variable fw_fuel_count is ptr gets (call _fs.find with to str_fuel_count, sizeof str_fuel_count);
+	
+	constant str_metal_count is string gets "METAL-COUNT";
+	variable fw_metal_count is ptr gets (call _fs.find with to str_metal_count, sizeof str_metal_count);
+	
+	constant str_disco_count is string gets "DISCOVERIES-COUNT";
+	variable fw_disco_count is ptr gets (call _fs.find with to str_disco_count, sizeof str_disco_count);
+	
+	constant str_max_turtles is string gets "MAX-TURTLES";
+	variable fw_max_turtles is ptr gets (call _fs.find with to str_max_turtles, sizeof str_max_turtles);
+	
+	constant str_turtle_get_active is string gets "TURTLES[].ISACTIVE";
+	variable fw_turtle_get_active is ptr gets (call _fs.find with to str_turtle_get_active, sizeof str_turtle_get_active);
+	
 	-- Hide words
 	call _fs.hide_words with none;
 	
@@ -80,6 +95,7 @@ function main of none begin
 		region_notes gets (call _editor.create_region with 24, 15, 13, 11, 32),
 		region_code_output gets (call _editor.create_region with 7, 3, 26, 20, 0),		-- terminal output area
 		region_turtle_output gets (call _editor.create_region with 13, 16, 25, 9, 0),	-- terminal output area
+		region_resources gets (call _editor.create_region with 30, 2, 8, 10, 0),		-- terminal output area
 		
 		fword_game_update gets fw_game_update,
 		fword_compile_editor gets fw_compile_editor,
@@ -87,7 +103,12 @@ function main of none begin
 		fword_tile_sprite_id gets fw_tile_sprite_id,
 		fword_ended_win gets fw_ended_win,
 		fword_ended_loss gets fw_ended_loss,
-		fword_ending_text gets fw_ending_text
+		fword_ending_text gets fw_ending_text,
+		fword_fuel_count gets fw_fuel_count,
+		fword_metal_count gets fw_metal_count,
+		fword_disco_count gets fw_disco_count,
+		fword_max_turtles gets fw_max_turtles,
+		fword_turtle_get_active gets fw_turtle_get_active
 	end structure;
 	
 	-- TODO: Init sprite tables
