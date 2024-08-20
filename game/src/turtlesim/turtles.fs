@@ -179,12 +179,12 @@ VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
 
 \ inits an INACTIVE turtle at the current index with default starting values 
 : INIT-CURRENT-TURTLE-EMPTY 
-    FALSE TURTLES[CURRENT].ISACTIVE ! 
-    STARTING-HP TURTLES[CURRENT].HP ! 
-    STARTING-X TURTLES[CURRENT].X ! 
-    STARTING-Y TURTLES[CURRENT].Y !
-    STARTING-DIRECTION TURTLES[CURRENT].DIRECTION !
-    STARTING-COUNTDOWN TURTLES[CURRENT].COUNTDOWN !
+    FALSE TURTLES[CURRENT].ISACTIVE SWAP ! 
+    STARTING-HP TURTLES[CURRENT].HP SWAP ! 
+    STARTING-X TURTLES[CURRENT].X SWAP ! 
+    STARTING-Y TURTLES[CURRENT].Y SWAP !
+    STARTING-DIRECTION TURTLES[CURRENT].DIRECTION SWAP !
+    STARTING-COUNTDOWN TURTLES[CURRENT].COUNTDOWN SWAP !
 ;
 
 : INIT-TURTLE-OBJECTPOOLER 
@@ -300,11 +300,10 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 \ what happens when the current turtle overlaps the current tile 
 VARIABLE OVERLAPPING-TILE-TYPE
 : OVERLAP-TILE ( x y -- )
-    \ TODO effectively a switch statement based on the tile type id determining what happens 
+    \ effectively a switch statement based on the tile type id determining what happens 
     \ we can also print stuff here 
 
     GET-TILE-TYPEID OVERLAPPING-TILE-TYPE !
-
     
     \ artifact: artifact added, removed from tile 
     OVERLAPPING-TILE-TYPE TID-ARTIFACT = IF 
@@ -422,7 +421,7 @@ VARIABLE MOVING-TO-Y
 
 
 \ examine the thing in front of the current turtle. will count towards discoveries 
-: EXAMINE-AHEAD 
+: EXAMINE-AHEAD ( -- int )
     \ return the tile id ie the int 
     FORWARD GET-TILE-TYPEID 
 ;

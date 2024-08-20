@@ -132,7 +132,6 @@ VARIABLE S-T-INDEX
 
 
 \ define the map 
-\ TODO we can generate this if time allows 
 
 \ stores a fake 2d array (via pointer math) of ints representing the tile type 
 VARIABLE MAP MAP-SIZE 2 * CELLS ALLOT
