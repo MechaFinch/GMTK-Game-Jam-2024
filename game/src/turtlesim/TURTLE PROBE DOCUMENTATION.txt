@@ -79,6 +79,10 @@ Moving your Turtle
 
 Your Turtle will move in the direction it's currently facing. 
 
+- UPDATE 
+
+Your code defines this Word. Turtles run this Word in a loop when you deploy your code. 
+
 
 Exploring the World 
 -------------------
@@ -108,3 +112,6 @@ Self-Replication
 
 - SELF-REPLICATE 
 A Turtle can construct a copy of itself provided you have enough METAL and FUEL.
+
+- MAX-TURTLES 
+The maximum number of Turtles your ship can handle. 

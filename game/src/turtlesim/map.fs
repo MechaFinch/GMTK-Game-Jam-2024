@@ -10,6 +10,9 @@
     \ SPRITE-<filename>
 \ functions for when turtles interact with it? or do turtles code their interaction with tiles.
 
+\ tiles are referenced by ID 
+\ goes to arrays of information about a tile type 
+\ yet again I am using the flyweight pattern for a tile system 
 
 \ define the data about the types of tiles 
 : DEFINE-TILES ;
@@ -102,6 +105,17 @@ VARIABLE +COORDY
 
 ;
 
+: IS-PASSABLE ( x y -- bool )
+    \ is the tile at the given coordinates passable? returns true if so 
+;
+
+\ is there something on the tile of the given coordinates
+: IS-METAL-ON-TILE ( x y -- bool )
+
+;
+: IS-FUEL-ON-TILE ( x y -- bool )
+
+;
 
 
 \ for picking things up from a given tile 

@@ -1,10 +1,14 @@
 
-1 CONSTANT METAL-PER-TURTLE
-1 CONSTANT FUEL-PER-TURTLE
-
 10 CONSTANT STARTING-HP 
 0 CONSTANT STARTING-DIRECTION 
 10 CONSTANT STARTING-COUNTDOWN
+
+: STARTING-X ( -- int )
+    MAP-SIZE 2 /
+;
+: STARTING-Y ( -- int )
+    MAP-SIZE 2 /
+;
 
 : TURTLE-COUNT++
     1 TURTLE-COUNT +!
@@ -25,9 +29,9 @@ VARIABLE CURRENT-TURTLE-INDEX
 ;
 
 \ the turtle data struct the current index points to 
-: CURRENT-TURTLE ( -- currentturtleaddr )
-    CURRENT-TURTLE-INDEX CELLS TURTLES-LIST +
-;
+\: CURRENT-TURTLE ( -- currentturtleaddr )
+\    CURRENT-TURTLE-INDEX CELLS TURTLES-LIST +
+\;
 
 \ a turtle stores 
 \ x,y position on the grid 
@@ -44,64 +48,76 @@ VARIABLE ARR-Y          MAX-TURTLES CELLS ALLOT
 VARIABLE ARR-DIRECTION  MAX-TURTLES CELLS ALLOT
 VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
 
-: INIT-TURTLE-INFO-ARRAYS 
-
-;
-
 \ object pooler of turtle structs that get reused 
-VARIABLE TURTLES-LIST
+\VARIABLE TURTLES-LIST
 
 \ words to get specific properties of the turtle of specified index 
 : TURTLES[].ISACTIVE ( index -- isactive )
-
+    CELLS ARR-ISACTIVE + 
 ;
 : TURTLES[].HP ( index -- hp )
-
+    CELLS ARR-HP + 
 ;
 : TURTLES[].X ( index -- x )
-
+    CELLS ARR-X + 
 ;
 : TURTLES[].Y ( index -- y)
-
+    CELLS ARR-Y + 
 ;
 : TURTLES[].COORDS ( index -- x y )
-
+    TURTLES[].X TURTLES[].Y
 ;
 : TURTLES[].DIRECTION ( index -- direction )
-
+    CELLS ARR-DIRECTION + 
 ;
 : TURTLES[].COUNTDOWN ( index -- countdown )
-
+    CELLS ARR-COUNTDOWN + 
 ;
 
 \ words to get specific properties of the current turtle 
 : TURTLES[CURRENT].ISACTIVE ( -- isactive )
     CURRENT-TURTLE-INDEX TURTLES[].ISACTIVE
 ;
-: TURTLES[CURRENT].HP ( index -- hp )
-
+: TURTLES[CURRENT].HP ( -- hp )
+    CURRENT-TURTLE-INDEX TURTLES[].HP
 ;
-: TURTLES[CURRENT].X ( index -- x )
-
+: TURTLES[CURRENT].X ( -- x )
+    CURRENT-TURTLE-INDEX TURTLES[].X
 ;
-: TURTLES[CURRENT].Y ( index -- y)
-
+: TURTLES[CURRENT].Y ( -- y)
+    CURRENT-TURTLE-INDEX TURTLES[].Y
 ;
-: TURTLES[CURRENT].COORDS ( index -- x y )
-
+: TURTLES[CURRENT].COORDS ( -- x y )
+    CURRENT-TURTLE-INDEX TURTLES[].COORDS
 ;
-: TURTLES[CURRENT].DIRECTION ( index -- direction )
-
+: TURTLES[CURRENT].DIRECTION ( -- direction )
+    CURRENT-TURTLE-INDEX TURTLES[].DIRECTION
 ;
-: TURTLES[CURRENT].COUNTDOWN ( index -- countdown )
-
+: TURTLES[CURRENT].COUNTDOWN ( -- countdown )
+    CURRENT-TURTLE-INDEX TURTLES[].COUNTDOWN
 ;
 
+\ inits an INACTIVE turtle at the current index with default starting values 
+: INIT-CURRENT-TURTLE-EMPTY 
+    FALSE TURTLES[CURRENT].ISACTIVE ! 
+    STARTING-HP TURTLES[CURRENT].HP ! 
+    STARTING-X TURTLES[CURRENT].X ! 
+    STARTING-Y TURTLES[CURRENT].Y !
+    STARTING-DIRECTION TURTLES[CURRENT].DIRECTION !
+    STARTING-COUNTDOWN TURTLES[CURRENT].COUNTDOWN !
+;
 
 : INIT-TURTLE-OBJECTPOOLER 
     0 TURTLE-COUNT !
 
-    \ TODO create empty turtles 
+    \ create empty turtles 
+    MAX-TURTLES 0 DO 
+        I CURRENT-TURTLE-INDEX ! 
+        INIT-CURRENT-TURTLE-EMPTY
+    LOOP
+
+    \ put the current back where it started 
+    0 CURRENT-TURTLE-INDEX !
 ;
 
 : HAS-SPACE-FOR-NEW-TURTLE ( -- bool )
@@ -127,20 +143,30 @@ VARIABLE TURTLES-LIST
     -1
 ;
 
-: INIT-TURTLE 
-    \ init a turtle at the selected index in the object pooler 
-    \ fill the information with defaults 
-    \ increment the turtle counter 
-    TURTLE-COUNT++
-    \ TODO set turtle active based on variable passed in 
-;
-
+\ inits an ACTIVE turtle 
+VARIABLE TURTLE-INDEX-CREATING
+VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 : CREATE-TURTLE 
-        \ TODO put these in loops based on variables
+
     SPEND-METAL 
     SPEND-FUEL 
-    INIT-TURTLE \ TODO at selected index 
-    \ TODO set that turtle active 
+
+    \ init a turtle at the selected index in the object pooler
+    GET-OPEN-TURTLE-SLOT TURTLE-INDEX-CREATING !
+
+    \ fill the information with defaults 
+    CURRENT-TURTLE-INDEX CURRENT-TURTLE-INDEX-STORAGE !
+    TURTLE-INDEX-CREATING CURRENT-TURTLE-INDEX !
+    INIT-CURRENT-TURTLE-EMPTY
+    
+    \ increment the turtle counter 
+    TURTLE-COUNT++
+
+    \ set turtle active based on variable passed in 
+    TRUE TURTLES[CURRENT].ISACTIVE !
+    
+    \ reset current turtle counter to what it was at before not the new turtle 
+    CURRENT-TURTLE-INDEX-STORAGE CURRENT-TURTLE-INDEX !
 ;
 
 : FAILED-CREATE-TURTLE-METAL
@@ -153,15 +179,28 @@ VARIABLE TURTLES-LIST
     ."Maximum probes reached! " CR
 ;
 
-: TRY-CREATE-TURTLE
+: TRY-CREATE-TURTLE ( -- )
 
     \ validate metal 
-    \ validate fuel 
-    \ validate enough turtles
+    VALIDATE-NEWTURTLE-METAL IF
 
-    \ check if object pooler has an open slot- so really, just check if the turtle count is lower than the maximum 
-    HAS-SPACE-FOR-NEW-TURTLE \ TODO put this in an if 
-    GET-OPEN-TURTLE-SLOT CREATE-TURTLE \ create turtle at the next open index
+        \ validate fuel 
+        VALIDATE-NEWTURTLE-FUEL IF
+
+            \ validate enough turtles
+            \ check if object pooler has an open slot- so really, just check if the turtle count is lower than the maximum 
+            HAS-SPACE-FOR-NEW-TURTLE IF 
+
+                CREATE-TURTLE \ create turtle at the next open index
+            ELSE 
+                FAILED-CREATE-TURTLE-COUNTLIMIT
+            THEN 
+        ELSE 
+            FAILED-CREATE-TURTLE-FUEL
+        THEN 
+    ELSE 
+        FAILED-CREATE-TURTLE-METAL
+    THEN 
 ;
 
 \ the user-facing word for creating a turtle 
@@ -177,20 +216,16 @@ VARIABLE TURTLES-LIST
 : RIGHT ;
 
 
-: IS-PASSABLE 
-    \ is the tile at the given coordinates passable? returns true if so 
-;
-
 : SET-TURTLE-POSITION 
 
 ;
 
-: EXECUTE-TILE-LOGIC-OVERLAP
+\: EXECUTE-TILE-LOGIC-OVERLAP
     \ do whatever the tile does when the player lands on the tile 
-;
-: EXECUTE-TILE-LOGIC-EXAMINE
+\;
+\: EXECUTE-TILE-LOGIC-EXAMINE
     \ do whatever the tile does when the player examines it
-;
+\;
 \ TODO more of these 
 
 
@@ -222,12 +257,13 @@ VARIABLE TURTLES-LIST
 
 
 \ is there something on the tile of the current turtle 
-: IS-METAL-ON-TILE
+: IS-METAL-ON-CURRENT-TILE ( -- bool )
 
 ;
-: IS-FUEL-ON-TILE
+: IS-FUEL-ON-CURRENT-TILE ( -- bool )
 
 ;
+
 
 : PICK-UP-FUEL 
     \ TODO provide coordinates for the below
