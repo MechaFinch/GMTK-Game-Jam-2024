@@ -16,9 +16,9 @@ compile:
 	
 	CALL housekeeping
 	
-	; hello_world.fs
-	PUSHW ptr [hello_world.len]
-	PUSHW ptr hello_world
+	; glue_words.fs
+	PUSHW ptr [glue_words.len]
+	PUSHW ptr glue_words
 	CALL compile_file
 	ADD SP, 8
 
@@ -65,10 +65,11 @@ compile:
 ; FORTH SOURCE FILE INCLUSIONS
 ;
 
-hello_world:
-	incbin "hello_world.fs"
+glue_words:
+.start:
+	incbin "glue_words.fs"
 .len:
-	dp hello_world.len - hello_world
+	dp .len - .start
 
 gameendings:
 .start:
@@ -230,3 +231,138 @@ exception_handler:
 	INT 0x20
 
 .buf:	resb 2
+
+
+
+; hide_words
+; Hide words from the dictionary
+hide_words:
+	PUSHW BP
+	MOVW BP, SP
+	PUSHW J:I
+	PUSHW L:K
+	
+	; B:C = current address
+	; J:I = start address
+	; L:K = remaining bytes
+	MOVW B:C, hidden_words
+	MOVW J:I, B:C
+	MOVW L:K, hidden_words.len
+	
+.loop:
+	; find end of the word
+	MOV AL, [B:C]
+	CMP AL, 0x0A
+	JNE .next
+	
+	PUSHW B:C
+	
+	; push start address
+	PUSHW J:I
+	CALL forth.interop_push
+	ADD SP, 4
+	
+	; push length
+	SUB C, I	; length = current - start
+	SBB B, J
+	PUSHW B:C
+	CALL forth.interop_push
+	ADD SP, 4
+	
+	; FIND-NAME
+	PUSHW ptr forth.fword_find_name
+	CALL forth.interop_pcall
+	ADD SP, 4
+	
+	; if zero (not found), skip
+	CALL forth.interop_peek
+	
+	CMP A, 0
+	JNZ .found
+	CMP D, 0
+	JZ .not_found
+	
+.found:
+	; HIDE
+	PUSHW ptr forth.fword_hide
+	CALL forth.interop_pcall
+	ADD SP, 4
+	
+.not_found:
+	POPW B:C
+	LEA J:I, [B:C + 1]
+
+.next:
+	INC C
+	ICC B
+	DEC K
+	DCC L
+	JNZ .loop
+	CMP K, 0
+	JNZ .loop
+	
+	POPW L:K
+	POPW J:I
+	POPW BP
+	RET
+
+hidden_words:
+	;incbin "turtlesim/UserHiddenWords.txt"
+.len:
+	dp hidden_words.len - hidden_words
+
+
+
+; find
+; Finds a word
+find:
+	PUSHW BP
+	MOVW BP, SP
+	
+	; push pointer
+	PUSHW ptr [BP + 8]
+	CALL forth.interop_push
+	ADD SP, 4
+	
+	; push length
+	PUSHW ptr [BP + 12]
+	CALL forth.interop_push
+	ADD SP, 4
+	
+	; FIND-NAME
+	PUSHW ptr forth.fword_find_name
+	CALL forth.interop_pcall
+	ADD SP, 4
+	
+	CALL forth.interop_peek
+	CMP D, 0
+	JNZ .found
+	CMP A, 0
+	JZ .not_found
+	
+.found:
+	; NAME>INTERPRET
+	PUSHW ptr forth.fword_nametointerpret
+	CALL forth.interop_pcall
+	ADD SP, 4
+	
+	; return it
+	CALL forth.interop_pop
+	
+.ret:
+	POPW BP
+	RET
+
+.not_found:
+	CALL forth.kernel_print_inline
+	db 16, 0x0A, "Couldn't find: "
+	
+	PUSHW J:I
+	
+	MOVW B:C, [BP + 12]
+	MOVW J:I, [BP + 8]
+	CALL forth.kernel_print_string
+	
+.not_found_after:
+	POPW J:I
+	JMP .ret

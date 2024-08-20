@@ -7,3 +7,9 @@
 
 -- Compile source code
 external function _fs.compile of none returns none;
+
+-- Hide hidden words from the dictionary
+external function _fs.hide_words of none returns none;
+
+-- Find a word, return its xt
+external function _fs.find of u8 pointer name, u32 length returns ptr;
