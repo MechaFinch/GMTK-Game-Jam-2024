@@ -50,7 +50,7 @@ handler:
 	PUSHA
 	
 	MOVW D:A, [time]
-	ADD A, 10
+	ADD A, 1
 	ICC D
 	MOVW [time], D:A
 	

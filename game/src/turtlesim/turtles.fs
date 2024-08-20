@@ -473,7 +473,7 @@ VARIABLE MOVING-TO-Y
 : TURTLE-DIES ( index --  )
 
     \ set inactive 
-    FALSE TURTLES[].INACTIVE !
+    FALSE TURTLES[].ISACTIVE !
 
     TURTLE-COUNT--
     ." A Turtle perished! " CR

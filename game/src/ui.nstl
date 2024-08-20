@@ -548,11 +548,20 @@ end function
 -- End
 -- Wait a little, then accept input
 function ui_end of interface_data pointer ui_data returns none begin
+	variable buff is u8 array size 2;
+	--call _os.read_file with STDIN, 1, to buff;
+	--call wait with 1000, true;
+	--call _sprites.draw with to _spritedata.message_code, EDITOR_WINDOW_X, EDITOR_WINDOW_Y;
+	
+	ui_data.region_code_output.screen_origin_y gets ui_data.region_code_output.screen_origin_y + 2;
+	ui_data.region_code_output.foreground_color gets 6;
+	ui_data.region_code_output.background_color gets 0;
+	
+	call _editor.set_term_area with ui_data.region_code_output;
 	call _forth.interop_pcall with ui_data.fword_ending_text;
 	call wait with 500, true;
 	
 	while true do
-		variable buff is u8 array size 2;
 		call _os.read_file with STDIN, 1, to buff;
 		variable input is u8 gets buff index 0;
 		variable input_shift is u8 gets input and 0x80;
