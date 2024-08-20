@@ -361,7 +361,6 @@ function scene_camera of interface_data pointer ui_data returns u8 begin
 					elseif tile_id = TID_CONES then
 						--tile_sprite gets to _spritedata.map_??;
 					end if
-						
 					
 					if tile_sprite != 0 then
 						call _sprites.draw with tile_sprite, CAMERA_MAP_START_X + (x * CAMERA_MAP_TILE_SIZE), CAMERA_MAP_START_Y + (y * CAMERA_MAP_TILE_SIZE);
@@ -446,14 +445,37 @@ end function
 
 -- Win
 function scene_win of interface_data pointer ui_data returns none begin
-	call _os.exit with none;
+	call _sprites.draw with to _spritedata.end_win, 0, 0;
+	call ui_end with ui_data;
 end function
 
 
 
 -- Loss
 function scene_loss of interface_data pointer ui_data returns none begin
-	call _os.exit with none;
+	call _sprites.draw with to _spritedata.end_lose, 0, 0;
+	call ui_end with ui_data;
+end function
+
+
+
+-- End
+-- Wait a little, then accept input
+function ui_end of interface_data pointer ui_data returns none begin
+	call _forth.interop_pcall with ui_data.fword_ending_text;
+	call wait with 500, true;
+	
+	while true do
+		variable buff is u8 array size 2;
+		call _os.read_file with STDIN, 1, to buff;
+		variable input is u8 gets buff index 0;
+		variable input_shift is u8 gets input and 0x80;
+		variable input_char is u8 gets input and 0x7F;
+		
+		if (input_char = KEY_ESCAPE) or (input_char = KEY_ENTER) then
+			call _os.exit with none;
+		end if
+	end while
 end function
 
 
