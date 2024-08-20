@@ -100,6 +100,23 @@ VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
 ;
 
 
+: NORTH-OF-ME ( -- x y )
+    TURTLES[CURRENT].COORDS NORTH +COORD
+;
+
+: EAST-OF-ME ( -- x y )
+    TURTLES[CURRENT].COORDS EAST +COORD
+;
+
+: SOUTH-OF-ME ( -- x y )
+    TURTLES[CURRENT].COORDS SOUTH +COORD
+;
+
+: WEST-OF-ME ( -- x y )
+    TURTLES[CURRENT].COORDS WEST +COORD
+;
+
+
 \ directions relative to current turtle facing 
 \ these return the coordinates of the tile referred to by this
 \ used by the player 
@@ -158,22 +175,6 @@ VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
     TURTLES[CURRENT].DIRECTION ENUM-WEST @ = IF
         NORTH-OF-ME
     THEN
-;
-
-: NORTH-OF-ME ( -- x y )
-    TURTLES[CURRENT].COORDS NORTH +COORD
-;
-
-: EAST-OF-ME ( -- x y )
-    TURTLES[CURRENT].COORDS EAST +COORD
-;
-
-: SOUTH-OF-ME ( -- x y )
-    TURTLES[CURRENT].COORDS SOUTH +COORD
-;
-
-: WEST-OF-ME ( -- x y )
-    TURTLES[CURRENT].COORDS WEST +COORD
 ;
 
 
@@ -297,6 +298,63 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 
 
 
+
+: TURTLE-DIES ( index --  )
+
+    \ set inactive 
+    FALSE TURTLES[].ISACTIVE !
+
+    TURTLE-COUNT--
+    ." A Turtle perished! " CR
+    CHECK-GAMEOVER 
+;
+
+\ check if current turtle should die 
+: CHECK-TURTLE-DEATH 
+    TURTLES[CURRENT].HP @ 0 <= IF 
+        TURTLE-DIES 
+    ELSE 
+    THEN
+;
+
+VARIABLE NEWDMGVAL
+: DAMAGE-TURTLE
+
+    \ decrement turtle hp 
+    TURTLES[CURRENT].HP 1 - NEWDMGVAL ! 
+    TURTLES[CURRENT].HP NEWDMGVAL SWAP !
+
+    CHECK-TURTLE-DEATH
+;
+
+
+
+\ is there something on the tile of the current turtle 
+: IS-METAL-ON-CURRENT-TILE ( -- bool )
+    TURTLES[CURRENT].COORDS IS-METAL-ON-TILE
+;
+: IS-FUEL-ON-CURRENT-TILE ( -- bool )
+    TURTLES[CURRENT].COORDS IS-FUEL-ON-TILE
+;
+
+
+: PICK-UP-FUEL 
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE
+    ADD-FUEL
+;
+
+: PICK-UP-METAL 
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE 
+    ADD-METAL 
+;
+
+: PICK-UP-ARTIFACT
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE
+    ADD-DISCOVERY
+;
+
+
+
 \ what happens when the current turtle overlaps the current tile 
 VARIABLE OVERLAPPING-TILE-TYPE
 : OVERLAP-TILE ( x y -- )
@@ -356,6 +414,8 @@ VARIABLE MTT-Y
 : FAILED-IMPASSABLE 
     ." Could not move forward: impassable! " CR
 ;
+
+
 
 
 
@@ -427,29 +487,7 @@ VARIABLE MOVING-TO-Y
 ;
 
 
-\ is there something on the tile of the current turtle 
-: IS-METAL-ON-CURRENT-TILE ( -- bool )
-    TURTLES[CURRENT].COORDS IS-METAL-ON-TILE
-;
-: IS-FUEL-ON-CURRENT-TILE ( -- bool )
-    TURTLES[CURRENT].COORDS IS-FUEL-ON-TILE
-;
 
-
-: PICK-UP-FUEL 
-    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE
-    ADD-FUEL
-;
-
-: PICK-UP-METAL 
-    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE 
-    ADD-METAL 
-;
-
-: PICK-UP-ARTIFACT
-    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE
-    ADD-DISCOVERY
-;
 
 \ pick up the thing it's on right now 
 : PICK-UP 
@@ -469,33 +507,7 @@ VARIABLE MOVING-TO-Y
 ;
 \ if it's fuel or metal, it gets added 
 
-: TURTLE-DIES ( index --  )
 
-    \ set inactive 
-    FALSE TURTLES[].ISACTIVE !
-
-    TURTLE-COUNT--
-    ." A Turtle perished! " CR
-    CHECK-GAMEOVER 
-;
-
-\ check if current turtle should die 
-: CHECK-TURTLE-DEATH 
-    TURTLES[CURRENT].HP @ 0 <= IF 
-        TURTLE-DIES 
-    ELSE 
-    THEN
-;
-
-VARIABLE NEWDMGVAL
-: DAMAGE-TURTLE
-
-    \ decrement turtle hp 
-    TURTLES[CURRENT].HP 1 - NEWDMGVAL ! 
-    TURTLES[CURRENT].HP NEWDMGVAL SWAP !
-
-    CHECK-TURTLE-DEATH
-;
 
 \ run the logic of a turtle 
 : TICK-TURTLE

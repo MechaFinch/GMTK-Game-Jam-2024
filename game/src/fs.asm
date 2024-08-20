@@ -28,6 +28,11 @@ compile:
 	CALL compile_file
 	ADD SP, 8
 
+	PUSHW ptr [spritedictionary.len]
+	PUSHW ptr spritedictionary
+	CALL compile_file
+	ADD SP, 8
+
 	PUSHW ptr [ship.len]
 	PUSHW ptr ship
 	CALL compile_file
@@ -75,6 +80,12 @@ glue_words:
 gameendings:
 .start:
 incbin "turtlesim/gameendings.fs"
+.len:
+dp .len - .start
+
+spritedictionary:
+.start:
+incbin "turtlesim/spritedictionary.fs"
 .len:
 dp .len - .start
 
