@@ -94,7 +94,7 @@ function main of none begin
 	ui_data gets interface_data of
 		-- code editor text areas
 		region_code_editor gets (call _editor.create_region with 2, 2, 20, 22, 128),
-		region_dictionary gets (call _editor.create_region with 24, 2, 13, 12, 29),
+		region_dictionary gets (call _editor.create_region with 24, 2, 13, 12, 34),
 		region_notes gets (call _editor.create_region with 24, 15, 13, 11, 32),
 		region_code_output gets (call _editor.create_region with 7, 3, 26, 20, 0),		-- terminal output area
 		region_turtle_output gets (call _editor.create_region with 13, 16, 25, 9, 0),	-- terminal output area
@@ -119,7 +119,7 @@ function main of none begin
 	constant str_default_update is string gets ": UPDATE ( -- ) ;";
 	call _util.memcopy with to str_default_update, ui_data.region_code_editor.buffer, sizeof str_default_update;
 	
-	call _util.memcopy with to _fs.playerdictionary, ui_data.region_dictionary.buffer, 29 * 14;
+	call _util.memcopy with to _fs.playerdictionary, ui_data.region_dictionary.buffer, 34 * 14;
 	call _util.memcopy with to _fs.defaultnotes, ui_data.region_notes.buffer, 10 * 14;
 		
 	call _ui.run_interface with to ui_data;

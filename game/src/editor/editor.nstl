@@ -306,7 +306,7 @@ end function
 
 function move_window_down of text_region pointer region returns none begin
 	-- scroll down if possible
-	if region.top_line < (region.max_lines - 1) then
+	if region.top_line < ((region.max_lines - 1) - region.screen_height as u16) then
 		region.top_line gets region.top_line + 1;
 		call draw_region with region;
 	end if
