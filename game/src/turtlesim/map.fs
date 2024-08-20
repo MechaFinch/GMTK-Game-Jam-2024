@@ -1,5 +1,7 @@
 
 
+32 CONSTANT MAP-SIZE 
+
 \ a tile stores 
 \ its forth word 
 \ its written description 
@@ -18,33 +20,19 @@
 : DEFINE-TILES ;
 
 
-\ a map is a grid of forth words that correspond to their data type 
-\ e.g. 
-\ CLIFF CLIFF CLIFF 
-\ CLIFF CLEAR CLIFF 
-\ CLIFF METAL CLIFF
-\ for monospacing all words are 5 letters 
-\ CLEAR METAL ROVER/DRONE CLIFF FUEL_ DSCV0-9 CLONE SPIKE EYES_ WATER ACIDW ACIDL 
-\ and they'll store a name that gets printed 
-
-\ TODO a separate grid of turtles, which can occupy grid spaces but not run into each other? 
-
-8 CONSTANT MAP-SIZE 
 
 
-\ creature mechanic ideas 
-\ kills you when picked up but fine otherwise 
-\ kills you when examined 
-\ kills you when scanned 
-\ kills you when walked on 
-\ kills you when walked next to but not on 
-\ kills you when walked next to and on 
-\ kills you if you look at it but fine otherwise 
-\ a ghost turtle clone thats not yours but copies your code 
+
+
+
+: !TILETYPE ( id word passable isdiscovery -- )
+
+;
 
 
 \ define the map 
 \ TODO we can generate this if time allows 
+\ stores a fake 2d array (via pointer math) of ints representing the tile type 
 : MAP ;
 
 \ directions relative to world 
@@ -99,6 +87,10 @@ VARIABLE +COORDY
     THEN 
 ;
 
+\ int representing type index to use looking up data about the type 
+: GET-TILE-TYPEID ( x y -- int )
+
+;
 
 \ get tile by position, will return null if out of range 
 : GET-TILE ( x y -- tile )

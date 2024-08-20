@@ -1,9 +1,4 @@
 
-\ when these flags get fliped, the end screen will be displayed 
-VARIABLE IS-ENDED
-VARIABLE IS-ENDED-WIN
-VARIABLE IS-ENDED-LOSS
-
 \ runs once before GAME-UPDATE 
 \ initialize all our data 
 : GAME-START 

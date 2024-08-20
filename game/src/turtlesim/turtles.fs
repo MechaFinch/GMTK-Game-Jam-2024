@@ -229,23 +229,46 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 ;
 
 
-
 \ just sets coordinates nothing else 
 : SET-TURTLE-POSITION ( x y -- )
     TURTLES[CURRENT].Y !
     TURTLES[CURRENT].X !
 ;
 
-\ : EXECUTE-TILE-LOGIC-OVERLAP
-    \ do whatever the tile does when the player lands on the tile 
-\ ;
+
+
+
+
+\ this file relies on turtles.fs
+
+\ what happens when the current turtle overlaps the current tile 
+: OVERLAP-TILE 
+    \ TODO effectively a switch statement based on the tile type id determining what happens 
+    \ we can also print stuff here 
+
+    \ clear: nothing happens
+
+    \ artifact: artifact added, removed from tile 
+
+    \ fuel 
+
+    \ metal 
+
+    \ something dangerous 
+
+;
 \ : EXECUTE-TILE-LOGIC-EXAMINE
     \ do whatever the tile does when the player examines it
 \ ;
 \ TODO more of these 
 
+
+
+
+
 : MOVE-TO-TILE ( x y -- )
     SET-TURTLE-POSITION 
+    OVERLAP-TILE
 
     \ do anything that needs to be done on this tile, and use TURTLES[CURRENT].COORDS to get the coords again 
 ;
@@ -363,4 +386,6 @@ VARIABLE MOVING-TO-Y
 : TICK-TURTLE
     \
 ;
+
+
 

@@ -2,6 +2,11 @@
 \ overall information about the ship 
 \ stores some authoritative variables 
 
+\ when these flags get fliped, the end screen will be displayed 
+VARIABLE IS-ENDED
+VARIABLE IS-ENDED-WIN
+VARIABLE IS-ENDED-LOSS
+
 \ this needs to be here for ending validation
 16 CONSTANT MAX-TURTLES
 VARIABLE TURTLE-COUNT
