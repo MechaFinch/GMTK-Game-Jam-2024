@@ -27,3 +27,8 @@ SOUTH
 EAST         
 WEST         
 --           
+ENUM-NORTH   
+ENUM-SOUTH   
+ENUM-EAST    
+ENUM-WEST    
+--           

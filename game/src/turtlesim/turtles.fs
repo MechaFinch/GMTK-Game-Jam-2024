@@ -78,25 +78,42 @@ VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
 
 \ words to get specific properties of the current turtle 
 : TURTLES[CURRENT].ISACTIVE ( -- isactive )
-    CURRENT-TURTLE-INDEX TURTLES[].ISACTIVE
+    CURRENT-TURTLE-INDEX @ TURTLES[].ISACTIVE
 ;
 : TURTLES[CURRENT].HP ( -- hp )
-    CURRENT-TURTLE-INDEX TURTLES[].HP
+    CURRENT-TURTLE-INDEX @ TURTLES[].HP
 ;
 : TURTLES[CURRENT].X ( -- x )
-    CURRENT-TURTLE-INDEX TURTLES[].X
+    CURRENT-TURTLE-INDEX @ TURTLES[].X
 ;
 : TURTLES[CURRENT].Y ( -- y)
-    CURRENT-TURTLE-INDEX TURTLES[].Y
+    CURRENT-TURTLE-INDEX @ TURTLES[].Y
 ;
 : TURTLES[CURRENT].COORDS ( -- x y )
-    CURRENT-TURTLE-INDEX TURTLES[].COORDS
+    CURRENT-TURTLE-INDEX @ TURTLES[].COORDS
 ;
 : TURTLES[CURRENT].DIRECTION ( -- direction )
-    CURRENT-TURTLE-INDEX TURTLES[].DIRECTION
+    CURRENT-TURTLE-INDEX @ TURTLES[].DIRECTION
 ;
 : TURTLES[CURRENT].COUNTDOWN ( -- countdown )
-    CURRENT-TURTLE-INDEX TURTLES[].COUNTDOWN
+    CURRENT-TURTLE-INDEX @ TURTLES[].COUNTDOWN
+;
+
+
+: NORTH-OF-ME ( -- x y )
+    TURTLES[CURRENT].COORDS NORTH +COORD
+;
+
+: EAST-OF-ME ( -- x y )
+    TURTLES[CURRENT].COORDS EAST +COORD
+;
+
+: SOUTH-OF-ME ( -- x y )
+    TURTLES[CURRENT].COORDS SOUTH +COORD
+;
+
+: WEST-OF-ME ( -- x y )
+    TURTLES[CURRENT].COORDS WEST +COORD
 ;
 
 
@@ -104,27 +121,71 @@ VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
 \ these return the coordinates of the tile referred to by this
 \ used by the player 
 : FORWARD ( -- x y )
-    
+    TURTLES[CURRENT].DIRECTION ENUM-NORTH @ = IF
+        NORTH-OF-ME
+    THEN 
+    TURTLES[CURRENT].DIRECTION ENUM-EAST @ = IF
+        EAST-OF-ME
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-SOUTH @ = IF
+        SOUTH-OF-ME
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-WEST @ = IF
+        WEST-OF-ME
+    THEN
 ;
 : BACK ( -- x y )
-
+    TURTLES[CURRENT].DIRECTION ENUM-NORTH @ = IF
+        SOUTH-OF-ME
+    THEN 
+    TURTLES[CURRENT].DIRECTION ENUM-EAST @ = IF
+        WEST-OF-ME
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-SOUTH @ = IF
+        NORTH-OF-ME
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-WEST @ = IF
+        EAST-OF-ME
+    THEN
 ;
 : LEFT ( -- x y )
-
+    TURTLES[CURRENT].DIRECTION ENUM-NORTH @ = IF
+        WEST-OF-ME
+    THEN 
+    TURTLES[CURRENT].DIRECTION ENUM-EAST @ = IF 
+        NORTH-OF-ME
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-SOUTH @ = IF
+        EAST-OF-ME
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-WEST @ = IF
+        SOUTH-OF-ME
+    THEN
 ;
 : RIGHT ( -- x y )
-
+    TURTLES[CURRENT].DIRECTION ENUM-NORTH @ = IF
+        EAST-OF-ME
+    THEN 
+    TURTLES[CURRENT].DIRECTION ENUM-EAST @ = IF
+        SOUTH-OF-ME
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-SOUTH @ = IF
+        WEST-OF-ME
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-WEST @ = IF
+        NORTH-OF-ME
+    THEN
 ;
 
 
 \ inits an INACTIVE turtle at the current index with default starting values 
 : INIT-CURRENT-TURTLE-EMPTY 
-    FALSE TURTLES[CURRENT].ISACTIVE ! 
-    STARTING-HP TURTLES[CURRENT].HP ! 
-    STARTING-X TURTLES[CURRENT].X ! 
-    STARTING-Y TURTLES[CURRENT].Y !
-    STARTING-DIRECTION TURTLES[CURRENT].DIRECTION !
-    STARTING-COUNTDOWN TURTLES[CURRENT].COUNTDOWN !
+    FALSE TURTLES[CURRENT].ISACTIVE SWAP ! 
+    STARTING-HP TURTLES[CURRENT].HP SWAP ! 
+    STARTING-X TURTLES[CURRENT].X SWAP ! 
+    STARTING-Y TURTLES[CURRENT].Y SWAP !
+    STARTING-DIRECTION TURTLES[CURRENT].DIRECTION SWAP !
+    STARTING-COUNTDOWN TURTLES[CURRENT].COUNTDOWN SWAP !
 ;
 
 : INIT-TURTLE-OBJECTPOOLER 
@@ -142,7 +203,7 @@ VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
 
 : HAS-SPACE-FOR-NEW-TURTLE ( -- bool )
     \ use MAX-TURTLES and the ship turtle count 
-    TURTLE-COUNT MAX-TURTLES < IF 
+    TURTLE-COUNT @ MAX-TURTLES < IF 
         TRUE
     ELSE 
         FALSE
@@ -175,8 +236,8 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
     GET-OPEN-TURTLE-SLOT TURTLE-INDEX-CREATING !
 
     \ fill the information with defaults 
-    CURRENT-TURTLE-INDEX CURRENT-TURTLE-INDEX-STORAGE !
-    TURTLE-INDEX-CREATING CURRENT-TURTLE-INDEX !
+    CURRENT-TURTLE-INDEX @ CURRENT-TURTLE-INDEX-STORAGE !
+    TURTLE-INDEX-CREATING @ CURRENT-TURTLE-INDEX !
     INIT-CURRENT-TURTLE-EMPTY
     
     \ increment the turtle counter 
@@ -186,7 +247,7 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
     TRUE TURTLES[CURRENT].ISACTIVE !
     
     \ reset current turtle counter to what it was at before not the new turtle 
-    CURRENT-TURTLE-INDEX-STORAGE CURRENT-TURTLE-INDEX !
+    CURRENT-TURTLE-INDEX-STORAGE @ CURRENT-TURTLE-INDEX !
 ;
 
 : FAILED-CREATE-TURTLE-METAL
@@ -231,30 +292,94 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 
 \ just sets coordinates nothing else 
 : SET-TURTLE-POSITION ( x y -- )
-    TURTLES[CURRENT].Y !
-    TURTLES[CURRENT].X !
+    TURTLES[CURRENT].Y SWAP !
+    TURTLES[CURRENT].X SWAP !
 ;
 
 
 
 
+: TURTLE-DIES ( index --  )
 
-\ this file relies on turtles.fs
+    \ set inactive 
+    FALSE TURTLES[].ISACTIVE !
+
+    TURTLE-COUNT--
+    ." A Turtle perished! " CR
+    CHECK-GAMEOVER 
+;
+
+\ check if current turtle should die 
+: CHECK-TURTLE-DEATH 
+    TURTLES[CURRENT].HP @ 0 <= IF 
+        TURTLE-DIES 
+    ELSE 
+    THEN
+;
+
+VARIABLE NEWDMGVAL
+: DAMAGE-TURTLE
+
+    \ decrement turtle hp 
+    TURTLES[CURRENT].HP 1 - NEWDMGVAL ! 
+    TURTLES[CURRENT].HP NEWDMGVAL SWAP !
+
+    CHECK-TURTLE-DEATH
+;
+
+
+
+\ is there something on the tile of the current turtle 
+: IS-METAL-ON-CURRENT-TILE ( -- bool )
+    TURTLES[CURRENT].COORDS IS-METAL-ON-TILE
+;
+: IS-FUEL-ON-CURRENT-TILE ( -- bool )
+    TURTLES[CURRENT].COORDS IS-FUEL-ON-TILE
+;
+
+
+: PICK-UP-FUEL 
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE
+    ADD-FUEL
+;
+
+: PICK-UP-METAL 
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE 
+    ADD-METAL 
+;
+
+: PICK-UP-ARTIFACT
+    TURTLES[CURRENT].COORDS REMOVE-ITEM-ON-TILE
+    ADD-DISCOVERY
+;
+
+
 
 \ what happens when the current turtle overlaps the current tile 
-: OVERLAP-TILE 
-    \ TODO effectively a switch statement based on the tile type id determining what happens 
+VARIABLE OVERLAPPING-TILE-TYPE
+: OVERLAP-TILE ( x y -- )
+    \ effectively a switch statement based on the tile type id determining what happens 
     \ we can also print stuff here 
 
-    \ clear: nothing happens
-
+    GET-TILE-TYPEID OVERLAPPING-TILE-TYPE !
+    
     \ artifact: artifact added, removed from tile 
+    OVERLAPPING-TILE-TYPE TID-ARTIFACT = IF 
+        PICK-UP-ARTIFACT
+    THEN
+
+    \ acid: hurts you
+    OVERLAPPING-TILE-TYPE TID-ACID = IF 
+        DAMAGE-TURTLE 
+    THEN
+
+    \ fuel and metal are not automatically picked up I guess? since there's a word for it?
 
     \ fuel 
 
     \ metal 
 
-    \ something dangerous 
+    \ clear, ect: nothing happens
 
 ;
 \ : EXECUTE-TILE-LOGIC-EXAMINE
@@ -266,9 +391,18 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 
 
 
+VARIABLE MTT-X 
+VARIABLE MTT-Y
 : MOVE-TO-TILE ( x y -- )
-    SET-TURTLE-POSITION 
-    OVERLAP-TILE
+
+    MTT-Y ! 
+    MTT-X ! 
+
+    MTT-X @ MTT-Y @ SET-TURTLE-POSITION 
+
+    MTT-X @ MTT-Y @ DISCOVER-TILE
+
+    MTT-X @ MTT-Y @ OVERLAP-TILE
 
     \ do anything that needs to be done on this tile, and use TURTLES[CURRENT].COORDS to get the coords again 
 ;
@@ -284,6 +418,8 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 
 
 
+
+
 \ moving the turtle 
 VARIABLE MOVING-TO-X 
 VARIABLE MOVING-TO-Y
@@ -294,10 +430,10 @@ VARIABLE MOVING-TO-Y
     MOVING-TO-X !
 
     \ VALIDATE-COORDINATES of what direction it's trying to move in
-    MOVING-TO-X MOVING-TO-Y VALIDATE-COORDINATES IF 
+    MOVING-TO-X @ MOVING-TO-Y @ VALIDATE-COORDINATES IF 
 
         \ if IS-PASSABLE 
-        MOVING-TO-X MOVING-TO-Y IS-PASSABLE IF 
+        MOVING-TO-X @ MOVING-TO-Y @ IS-PASSABLE IF 
             MOVE-TO-TILE
         ELSE 
             FAILED-IMPASSABLE 
@@ -309,84 +445,75 @@ VARIABLE MOVING-TO-Y
 
 
 
-
-: SET-TURTLE-DIRECTION 
-
+: SET-TURTLE-DIRECTION ( int -- )
+    TURTLES[CURRENT].DIRECTION SWAP !
 ;
 
 \ rotating the current turtle 
 : TURN-RIGHT 
-
+    TURTLES[CURRENT].DIRECTION ENUM-NORTH @ = IF
+        ENUM-EAST @ SET-TURTLE-DIRECTION
+    THEN 
+    TURTLES[CURRENT].DIRECTION ENUM-EAST @ = IF
+        ENUM-SOUTH @ SET-TURTLE-DIRECTION
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-SOUTH @ = IF
+        ENUM-WEST @ SET-TURTLE-DIRECTION
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-WEST @ = IF
+        ENUM-NORTH @ SET-TURTLE-DIRECTION
+    THEN
 ;
 : TURN-LEFT 
-
+    TURTLES[CURRENT].DIRECTION ENUM-NORTH @ = IF
+        ENUM-WEST @ SET-TURTLE-DIRECTION
+    THEN 
+    TURTLES[CURRENT].DIRECTION ENUM-EAST @ = IF
+        ENUM-NORTH @ SET-TURTLE-DIRECTION
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-SOUTH @ = IF
+        ENUM-EAST @ SET-TURTLE-DIRECTION
+    THEN
+    TURTLES[CURRENT].DIRECTION ENUM-WEST @ = IF
+        ENUM-SOUTH @ SET-TURTLE-DIRECTION
+    THEN
 ;
-
 
 
 \ examine the thing in front of the current turtle. will count towards discoveries 
-: EXAMINE-AHEAD 
-
+: EXAMINE-AHEAD ( -- int )
+    \ return the tile id ie the int 
+    FORWARD GET-TILE-TYPEID 
 ;
 
 
-\ is there something on the tile of the current turtle 
-: IS-METAL-ON-CURRENT-TILE ( -- bool )
 
-;
-: IS-FUEL-ON-CURRENT-TILE ( -- bool )
-
-;
-
-
-: PICK-UP-FUEL 
-    \ TODO provide coordinates for the below
-    REMOVE-FUEL-TILE
-    ADD-FUEL
-;
-
-: PICK-UP-METAL 
-    \ TODO provide coordinates for the below
-    REMOVE-METAL-TILE 
-    ADD-METAL 
-;
 
 \ pick up the thing it's on right now 
 : PICK-UP 
     \ pick up whatever's on the tile of the given coordinates
 
     \ IF there was fuel on the tile 
-
+    IS-FUEL-ON-CURRENT-TILE IF 
+        PICK-UP-FUEL 
+    ELSE 
+    THEN
     \ IF there was metal on the tile 
+    IS-METAL-ON-CURRENT-TILE IF
+        PICK-UP-METAL 
+    ELSE 
+    THEN
     
 ;
 \ if it's fuel or metal, it gets added 
 
-: TURTLE-DIES ( index --  )
 
-    \ set inactive 
-    FALSE TURTLES[].ISACTIVE !
-
-    TURTLE-COUNT--
-    ." A Turtle perished! " CR
-    CHECK-GAMEOVER 
-;
-
-\ check if current turtle should die 
-: CHECK-TURTLE-DEATH 
-
-;
-
-: DAMAGE-TURTLE
-    \ decrement turtle hp 
-    CHECK-TURTLE-DEATH
-;
 
 \ run the logic of a turtle 
 : TICK-TURTLE
+
+    \ TODO the counter ticking down to represent corrosive whatever 
     
     CHECK-TURTLE-DEATH
 ;
-
-
 

@@ -11,8 +11,8 @@ VARIABLE IS-ENDED-LOSS
 16 CONSTANT MAX-TURTLES
 VARIABLE TURTLE-COUNT
 
-1 CONSTANT FUEL-STARTING
-1 CONSTANT METAL-STARTING 
+5 CONSTANT FUEL-STARTING
+5 CONSTANT METAL-STARTING 
 
 1 CONSTANT METAL-PER-TURTLE
 1 CONSTANT FUEL-PER-TURTLE
@@ -28,10 +28,10 @@ VARIABLE DISCOVERIES-COUNT
 
 \ getters for the player (almost had a really funny oversight where the player would just be able to set their own fuel and metal values... hahaha)
 : GET-FUEL-AMT
-    FUEL-COUNT
+    FUEL-COUNT @
 ;
 : GET-METAL-AMT
-    METAL-COUNT
+    METAL-COUNT @
 ;
 
 \ VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
@@ -51,18 +51,18 @@ VARIABLE DISCOVERIES-COUNT
 
 
 : VALIDATE-NEWTURTLE-FUEL ( -- bool )
-    FUEL-COUNT FUEL-PER-TURTLE >= IF TRUE ELSE FALSE THEN
+    FUEL-COUNT @ FUEL-PER-TURTLE >= IF TRUE ELSE FALSE THEN
 ;
 : VALIDATE-NEWTURTLE-METAL ( -- bool )
-    METAL-COUNT METAL-PER-TURTLE >= IF TRUE ELSE FALSE THEN
+    METAL-COUNT @ METAL-PER-TURTLE >= IF TRUE ELSE FALSE THEN
 ;
 
 \ spend the amount of resources needed for a new turtle 
 : SPEND-FUEL 
-    FUEL-PER-TURTLE FUEL-COUNT -!
+    FUEL-PER-TURTLE FUEL-COUNT @ -!
 ;
 : SPEND-METAL 
-    METAL-PER-TURTLE METAL-COUNT -!
+    METAL-PER-TURTLE METAL-COUNT @ -!
 ;
 
 
@@ -81,7 +81,7 @@ VARIABLE DISCOVERIES-COUNT
 
 : CHECK-FUEL-WIN 
     \ returns true if we have enough fuel to win 
-    FUEL-COUNT FUEL-TO-WIN >= IF
+    FUEL-COUNT @ FUEL-TO-WIN >= IF
         TRUE
     ELSE 
         FALSE 
@@ -97,21 +97,21 @@ VARIABLE DISCOVERIES-COUNT
 
 
 : ADD-FUEL 
-    1 FUEL-COUNT +!
+    1 FUEL-COUNT @ +!
     TRY-FUEL-WIN
 ;
 : ADD-METAL 
-    1 METAL-COUNT +!
+    1 METAL-COUNT @ +!
 ;
 : ADD-DISCOVERY 
-    1 DISCOVERIES-COUNT +!
+    1 DISCOVERIES-COUNT @ +!
 ;
 
 
 : CHECK-FUEL-GAMEOVER ( -- bool )
     \ returns true if we're out of fuel AND no turtles remain 
-    TURTLE-COUNT 0 <= IF
-        FUEL-COUNT 0 <= IF
+    TURTLE-COUNT @ 0 <= IF
+        FUEL-COUNT @ 0 <= IF
             TRUE
         ELSE 
             FALSE 
@@ -122,8 +122,8 @@ VARIABLE DISCOVERIES-COUNT
 ;
 : CHECK-METAL-GAMEOVER ( -- bool )
     \ returns true if we're out of fuel AND no turtles remain 
-    TURTLE-COUNT 0 <= IF
-        METAL-COUNT 0 <= IF
+    TURTLE-COUNT @ 0 <= IF
+        METAL-COUNT @ 0 <= IF
             TRUE
         ELSE 
             FALSE 
@@ -158,10 +158,10 @@ VARIABLE DISCOVERIES-COUNT
             PRINT-END-METAL
         ELSE 
             CHECK-FUEL-WIN IF 
-                DISCOVERIES-COUNT DISCOVERIES-TOTAL >= IF 
+                DISCOVERIES-COUNT @ DISCOVERIES-TOTAL >= IF 
                     PRINT-END-ART-ALL 
                 ELSE 
-                    DISCOVERIES-COUNT 0 > IF 
+                    DISCOVERIES-COUNT @ 0 > IF 
                         PRINT-END-ART-SOME 
                     ELSE 
                         PRINT-END-ART-SOME 
