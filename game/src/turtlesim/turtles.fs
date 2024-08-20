@@ -2,6 +2,10 @@
 1 CONSTANT METAL-PER-TURTLE
 1 CONSTANT FUEL-PER-TURTLE
 
+10 CONSTANT STARTING-HP 
+0 CONSTANT STARTING-DIRECTION 
+10 CONSTANT STARTING-COUNTDOWN
+
 20 CONSTANT MAX-TURTLES
 
 VARIABLE TURTLE-COUNT
@@ -12,9 +16,6 @@ VARIABLE TURTLE-COUNT
 : TURTLE-COUNT--
     1 TURTLE-COUNT -!
 ;
-
-\ object pooler of turtle structs that get reused 
-VARIABLE TURTLES-LIST
 
 \ since we'll often want to re-use the index of the turtle we're talking about, these variables will keep track of the turtle all these functions will act on 
 VARIABLE CURRENT-TURTLE-INDEX
@@ -39,17 +40,95 @@ VARIABLE CURRENT-TURTLE-INDEX
 \ a timer indicating how close it is to corroding a pip 
 \ 
 
+\ parallel arrays storing the information about the turtles 
+VARIABLE ARR-ISACTIVE   MAX-TURTLES CELLS ALLOT
+VARIABLE ARR-HP         MAX-TURTLES CELLS ALLOT
+VARIABLE ARR-X          MAX-TURTLES CELLS ALLOT
+VARIABLE ARR-Y          MAX-TURTLES CELLS ALLOT
+VARIABLE ARR-DIRECTION  MAX-TURTLES CELLS ALLOT
+VARIABLE ARR-COUNTDOWN  MAX-TURTLES CELLS ALLOT
+
+: INIT-TURTLE-INFO-ARRAYS 
+
+;
+
+\ object pooler of turtle structs that get reused 
+VARIABLE TURTLES-LIST
+
+\ words to get specific properties of the turtle of specified index 
+: TURTLES[].ISACTIVE ( index -- isactive )
+
+;
+: TURTLES[].HP ( index -- hp )
+
+;
+: TURTLES[].X ( index -- x )
+
+;
+: TURTLES[].Y ( index -- y)
+
+;
+: TURTLES[].COORDS ( index -- x y )
+
+;
+: TURTLES[].DIRECTION ( index -- direction )
+
+;
+: TURTLES[].COUNTDOWN ( index -- countdown )
+
+;
+
+\ words to get specific properties of the current turtle 
+: TURTLES[CURRENT].ISACTIVE ( -- isactive )
+    CURRENT-TURTLE-INDEX TURTLES[].ISACTIVE
+;
+: TURTLES[CURRENT].HP ( index -- hp )
+
+;
+: TURTLES[CURRENT].X ( index -- x )
+
+;
+: TURTLES[CURRENT].Y ( index -- y)
+
+;
+: TURTLES[CURRENT].COORDS ( index -- x y )
+
+;
+: TURTLES[CURRENT].DIRECTION ( index -- direction )
+
+;
+: TURTLES[CURRENT].COUNTDOWN ( index -- countdown )
+
+;
+
+
 : INIT-TURTLE-OBJECTPOOLER 
     0 TURTLE-COUNT !
 
+    \ TODO create empty turtles 
 ;
 
 : HAS-SPACE-FOR-NEW-TURTLE
     \ use MAX-TURTLES and the ship turtle count 
+    MAX-TURTLES < IF 
+        true
+    ELSE 
+        false
+    THEN 
 ;
 
-: GET-OPEN-TURTLE-SLOT 
-    \ return the first found index to put a new turtle 
+\ return the first found index to put a new turtle 
+: GET-OPEN-TURTLE-SLOT ( -- index )
+    
+    MAX-TURTLES 0 DO 
+        I TURTLES[].ISACTIVE IF 
+            I 
+            EXIT
+        THEN 
+    LOOP
+
+    \ none found 
+    -1
 ;
 
 : INIT-TURTLE 
@@ -123,7 +202,7 @@ VARIABLE CURRENT-TURTLE-INDEX
 ;
 
 
-\ rotating the turtle 
+\ rotating the current turtle 
 : TURN-RIGHT 
 
 ;
@@ -135,13 +214,13 @@ VARIABLE CURRENT-TURTLE-INDEX
 
 ;
 
-\ examine the thing in front of it. will count towards discoveries 
+\ examine the thing in front of the current turtle. will count towards discoveries 
 : EXAMINE-AHEAD 
 
 ;
 
 
-
+\ is there something on the tile of the current turtle 
 : IS-METAL-ON-TILE
 
 ;

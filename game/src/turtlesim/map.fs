@@ -97,7 +97,7 @@ VARIABLE +COORDY
 ;
 
 
-\ get tile by position 
+\ get tile by position, will return null if out of range 
 : GET-TILE ( x y -- tile )
 
 ;
@@ -105,10 +105,10 @@ VARIABLE +COORDY
 
 
 \ for picking things up from a given tile 
-: REMOVE-FUEL-TILE 
+: REMOVE-FUEL-TILE ( x y -- )
     \ remove the fuel on a tile of the given coordinates
 ;
-: REMOVE-METAL-TILE 
+: REMOVE-METAL-TILE ( x y -- )
     \ remove the metal on a tile of the given coordinates
 ;
 
