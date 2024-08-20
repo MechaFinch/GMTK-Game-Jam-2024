@@ -1,6 +1,23 @@
 
 \ the forth words the player can use in their programs
 
+
+\ for the jam, just storing TRUE/FALSE has the word been discovered 
+\ and a print statement that prints the 
+
+\ parallel by index: 
+\ bool variables if they're visible/available to the user or not (i.e. have they been discovered)
+\ a print statement of the name 
+\ a print statement of the description (wishlist item for after the jam)
+
+
+: INIT-USER-WORLD-DICTIONARY
+
+
+;
+
+
+
 \ a library word stores 
 \ the fourth word 
 \ a written description to display to the player  
