@@ -1,0 +1,13 @@
+
+--
+-- Periodic
+--
+
+-- Initialize
+external function _periodic.init of none returns none;
+
+-- Time in ms
+external function _periodic.time_ms of none returns u32;
+
+-- Enable/disable game updates
+external function _periodic.set_updates_enabled of boolean enabled returns none;
