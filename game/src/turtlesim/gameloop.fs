@@ -35,64 +35,6 @@ VARIABLE IS-ENDED-LOSS
     THEN 
 ;
 
-\ handling game overs 
-
-\ this gets called by the UI 
-: PRINT-ENDING-TEXT 
-    \ TODO figure out what kind of ending we got 
-
-;
-
-\ we have 26 characters across and 22 down 
-: PRINT-END-METAL 
-    ."         GAME OVER         " CR
-    ." Without enough FUEL to    " CR
-    ." take off or METAL to build" CR
-    ." new probes to collect     " CR
-    ." more, you're stranded far " CR
-    ." from home.                " CR
-    ." You can only wait and hope" CR
-    ." for a filament-thin chance" CR
-    ." at rescue.                " CR
-    ." Food will run out over the" CR
-    ." coming weeks, then water, " CR
-    ." then oxygen, after which  " CR
-    ." your satellite will become" CR
-    ." your coffin, as inert as  " CR
-    ." the tomb-world below.     " CR
-;
-: PRINT-END-FUEL 
-    ."         GAME OVER         " CR
-    ." Without enough FUEL to    " CR
-    ." take off or build new     " CR
-    ." probes to collect more,   " CR
-    ." you're stranded far from  " CR
-    ." home.                     " CR
-    ." You can only wait and hope" CR
-    ." for a filament-thin chance" CR
-    ." at rescue.                " CR
-    ." Food will run out over the" CR
-    ." coming weeks, then water, " CR
-    ." then oxygen, after which  " CR
-    ." your satellite will become" CR
-    ." your coffin, as inert as  " CR
-    ." the tomb-world below.     " CR
-;
-: PRINT-END-ART-ALL
-
-    MISSION RESULTS:
-    OUTSTANDING
-
-;
-
-: PRINT-END-ART-SOME 
-
-;
-
-: PRINT-END-ART-NONE
-
-;
-
 : PRINT-START-TEXT 
     MISSION BRIEFING
 

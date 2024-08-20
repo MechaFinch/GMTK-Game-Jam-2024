@@ -2,6 +2,10 @@
 \ overall information about the ship 
 \ stores some authoritative variables 
 
+\ this needs to be here for ending validation
+20 CONSTANT MAX-TURTLES
+VARIABLE TURTLE-COUNT
+
 1 CONSTANT FUEL-STARTING
 1 CONSTANT METAL-STARTING 
 0 CONSTANT DISCOVERIES-STARTING
@@ -37,19 +41,6 @@ VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
     LOOP
 ;
 
-: ADD-FUEL 
-    1 FUEL-COUNT +!
-    UIUPDATE-FUEL
-    CHECK-GAMEWIN
-;
-: ADD-METAL 
-    1 METAL-COUNT +!
-    UIUPDATE-METAL
-;
-: ADD-DISCOVERY 
-    1 DISCOVERY-COUNT +!
-    UIUPDATE-DISCOVERIES
-;
 
 : VALIDATE-NEWTURTLE-FUEL
     FUEL-COUNT FUEL-PER-TURTLE >= IF true ELSE false THEN
@@ -60,11 +51,9 @@ VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
 
 : SPEND-FUEL 
     1 FUEL-COUNT -!
-    UIUPDATE-FUEL
 ;
 : SPEND-METAL 
     1 METAL-COUNT -!
-    UIUPDATE-METAL
 ;
 
 
@@ -72,41 +61,104 @@ VARIABLE DISCOVERIES DISCOVERIES-TOTAL CELLS ALLOT
 
 ;
 
-\ create a turtle IF there's enough resources 
-: TRY-CREATE-TURTLE 
-    \ TODO check if we have enough resources 
-    CREATE-TURTLE
+
+: WIN-GAME 
+    TRUE IS-ENDED-WIN !
+;
+: LOSE-GAME 
+    TRUE IS-ENDED-LOSS !
 ;
 
-
-\ enough fuel and enough discoveries to take off 
-: CHECK-GAMEWIN 
-    \ returns true if we've won the game
-
-;
 : CHECK-FUEL-WIN 
     \ returns true if we have enough fuel to win 
-
+    FUEL-COUNT 0 <= IF
+        TRUE
+    ELSE 
+        FALSE 
+    THEN 
 ;
-\ (wait, or is it fuel and then discoveries is score?)
-\: CHECK-DISCOVERIES-WIN ;
+
+: TRY-FUEL-WIN
+    CHECK-FUEL-WIN IF 
+        WIN-GAME
+    ELSE 
+    THEN
+;
+
+
+: ADD-FUEL 
+    1 FUEL-COUNT +!
+    TRY-FUEL-WIN
+;
+: ADD-METAL 
+    1 METAL-COUNT +!
+;
+: ADD-DISCOVERY 
+    1 DISCOVERY-COUNT +!
+;
+
+
+: CHECK-FUEL-GAMEOVER ( -- bool )
+    \ returns true if we're out of fuel AND no turtles remain 
+    TURTLE-COUNT 0 <= IF
+        FUEL-COUNT 0 <= IF
+            TRUE
+        ELSE 
+            FALSE 
+        THEN 
+    ELSE 
+        FALSE 
+    THEN
+;
+: CHECK-METAL-GAMEOVER ( -- bool )
+    \ returns true if we're out of fuel AND no turtles remain 
+    TURTLE-COUNT 0 <= IF
+        METAL-COUNT 0 <= IF
+            TRUE
+        ELSE 
+            FALSE 
+        THEN 
+    ELSE 
+        FALSE 
+    THEN
+;
 
 \ no turtles alive AND 0 of either fuel or metal to make more 
 : CHECK-GAMEOVER 
     \ returns true if we've lost the game 
-
-;
-: CHECK-FUEL-GAMEOVER 
-    \ returns true if we're out of fuel AND no turtles remain 
-
-;
-: CHECK-METAL-GAMEOVER 
-    \ returns true if we're out of fuel AND no turtles remain 
-
-;
-
-: END-GAME 
-    \ TODO 
-    \ display total discoveries 
+    CHECK-FUEL-GAMEOVER IF 
+        LOSE-GAME
+    ELSE 
+        CHECK-METAL-GAMEOVER IF 
+            LOSE-GAME
+        ELSE 
+        THEN
+    THEN
 ;
 
+\ handling game overs 
+
+\ this gets called by the UI 
+: PRINT-ENDING-TEXT 
+    \ figure out what kind of ending we got 
+    CHECK-FUEL-GAMEOVER IF 
+        PRINT-END-FUEL
+    ELSE    
+        CHECK-METAL-GAMEOVER IF 
+            PRINT-END-METAL
+        ELSE 
+            CHECK-FUEL-WIN IF 
+                DISCOVERIES-COUNT DISCOVERIES-TOTAL >= IF 
+                    PRINT-END-ART-ALL 
+                ELSE 
+                    DISCOVERIES-COUNT 0 > IF 
+                        PRINT-END-ART-SOME 
+                    ELSE 
+                        PRINT-END-ART-SOME 
+                    THEN 
+                THEN
+            ELSE 
+            THEN 
+        THEN
+    THEN
+;
