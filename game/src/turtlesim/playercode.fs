@@ -1,10 +1,6 @@
 
 \ the code the player starts with 
 : STARTING-CODE 
-    "
-    EXAMINE-AHEAD
-    MOVE-FORWARD
-     "
+    ." EXAMINE-AHEAD " CR
+    ." MOVE-FORWARD " CR
 ;
-
-
