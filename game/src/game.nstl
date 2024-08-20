@@ -38,10 +38,17 @@ function main of none begin
 	-- Init text regions
 	variable ui_data is interface_data gets interface_data of
 		-- code editor text areas
-		region_code_editor gets (call _editor.create_region with 2, 2, 14, 24, 128),
-		region_dictionary gets (call _editor.create_region with 18, 2, 19, 12, 20),
-		region_notes gets (call _editor.create_region with 18, 15, 19, 11, 32)
+		region_code_editor gets (call _editor.create_region with 2, 2, 20, 22, 128),
+		region_dictionary gets (call _editor.create_region with 24, 2, 13, 12, 20),
+		region_notes gets (call _editor.create_region with 24, 15, 13, 11, 32),
+		region_code_output gets (call _editor.create_region with 7, 6, 26, 20, 0),	-- terminal output area
+		
+		fword_game_update gets 0
 	end structure;
+	
+	-- TODO: Init sprite tables
+	-- call forth word TSPR-<name> ( -- x )
+	-- associate x with sprite
 	
 	constant str_1 is string gets "Reference text 1";
 	constant str_2 is string gets "Reference text 2";

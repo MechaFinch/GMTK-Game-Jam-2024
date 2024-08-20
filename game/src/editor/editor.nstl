@@ -15,13 +15,15 @@ define STDOUT is 1;
 define COLOR_WHITE is 0xFF;
 define COLOR_BLACK is 0x01;
 
-define KEY_NEWLINE is 0x0A;
+define KEY_BACKSPACE is 0x08;
 define KEY_TAB is 0x09;
+define KEY_NEWLINE is 0x0A;
 define KEY_LEFT is 0x15;
 define KEY_UP is 0x16;
 define KEY_RIGHT is 0x17;
 define KEY_DOWN is 0x18;
 define KEY_ESCAPE is 0x1B;
+define KEY_SPACE is 0x20;
 define KEY_DELETE is 0x7F;
 
 -- Create a text_region object
@@ -44,6 +46,7 @@ function create_region of u8 sox, u8 soy, u8 sw, u8 sh, u16 max_lines returns te
 	region.foreground_color gets COLOR_BLACK;
 	region.background_color gets COLOR_WHITE;
 	region.buffer gets buffer;
+	region.buffer_size gets buff_size;
 	
 	-- Initialize buffer
 	variable i is u16 gets 0;
@@ -105,7 +108,38 @@ function edit_region of text_region pointer region, boolean edit returns u8 begi
 			-- change window
 			input gets input or shift;
 			return input;
-		elseif (input >= 0x20) then
+		elseif input = KEY_BACKSPACE then
+			-- move left
+			call unhighlight with region, abs_x, abs_y, KEY_SPACE;
+			call move_cursor_left with region;
+			
+			-- erase new position
+			i gets (call get_index with region);
+			region.buffer index i gets KEY_SPACE;
+		elseif input = KEY_NEWLINE then
+			call unhighlight with region, abs_x, abs_y, KEY_SPACE;
+			
+			-- copy stuff down
+			if (call copy_down with region, region.cursor_y + 1) then
+				-- if stuff was moved
+				-- If there's stuff on this line at/after the cursor, copy buffer contents downwards
+				if (call line_has_after with region) then
+					-- move other contents
+					i gets (call get_index with region);
+					variable line_size is u32 gets (region.screen_width as u32) + 1;
+					variable next_line_i is u16 gets (call get_index_of with region, 0, region.cursor_y + 1);
+					call _util.memcopy with region.buffer + (i as u32), region.buffer + (next_line_i as u32), (next_line_i - i) as u32;
+				end if
+				
+				call draw_region with region;
+			end if
+			
+			-- move cursor to new line
+			region.cursor_x gets 0;
+			call move_cursor_down with region;
+		elseif input = KEY_DELETE then
+			
+		elseif (input >= 0x20) and (input < 0x7F) then
 			-- not a control character, place it
 			region.buffer index i gets input;
 			
@@ -133,6 +167,81 @@ function edit_region of text_region pointer region, boolean edit returns u8 begi
 		end if
 	end if
 	end while
+end function
+
+-- copies buffer contents up a line
+function copy_up of text_region pointer region, u8 destination_y returns none begin
+	-- copy
+	variable i is u16 gets (call get_index_of with region, 0, destination_y);
+	variable dest_ptr is ptr gets region.buffer + (i as u32);
+	variable line_size is u32 gets (region.screen_width as u32) + 1;
+	
+	call _util.memcopy with dest_ptr + line_size, dest_ptr, ((region.buffer_size - i) as u32) - line_size;
+	
+	-- erase last line
+	variable last_line_i is u16 gets (region.max_lines - 1) * (region.screen_width as u16 + 1);
+	for x is u8 gets 0; x < region.screen_width; x gets x + 1 do
+		region.buffer index (i + x as u16) gets KEY_SPACE;
+	end for
+end function
+
+-- copies buffer contents down a line, if space is available. If complete, returns true. If not, returns false.
+function copy_down of text_region pointer region, u8 start_y returns boolean begin
+	-- does this actually do anything
+	if (start_y as u16 + region.top_line) >= (region.max_lines - 1) then
+		return false;
+	end if
+
+	-- do we have space
+	variable last_line_i is u16 gets (region.max_lines - 1) * (region.screen_width as u16 + 1);
+	
+	for x is u8 gets 0; x < region.screen_width; x gets x + 1 do
+		if (region.buffer index (last_line_i + x as u16)) != KEY_SPACE then
+			return false;
+		end if
+	end for
+	
+	-- copy
+	variable start_i is u16 gets (call get_index_of with region, 0, start_y);
+	variable line_size is u16 gets (region.screen_width as u16) + 1;
+	for i is u16 gets (last_line_i - line_size); i >= start_i; i gets i - 1 do
+		call _util.memcopy with region.buffer + (i as u32), region.buffer + ((i + line_size) as u32), line_size;
+	end for
+
+	return true;
+end function
+
+-- returns the x coordinate of the last non-space character in the current line
+function line_last_char_x of text_region pointer region returns u8 begin
+	variable lx is u8 gets 0;
+	variable i is u16 gets (call get_index_of with region, 0, region.cursor_y);
+	
+	for x is u8 gets 0; x < region.screen_width; x gets x + 1 do
+		if (region.buffer index i) != KEY_SPACE then
+			lx gets x;
+		end if
+		
+		i gets i + 1;
+	end for
+	
+	return lx;
+end function
+
+-- returns true if there are non-space characters on or after the cursor
+function line_has_after of text_region pointer region returns boolean begin
+	variable i is u16 gets (call get_index with region);
+	variable x is u8 gets region.cursor_x;
+	
+	while x < (region.screen_width - 1) do
+		if (region.buffer index i) != KEY_SPACE then
+			return true;
+		end if
+		
+		x gets x + 1;
+		i gets i + 1;
+	end while
+	
+	return false;
 end function
 
 function move_cursor_up of text_region pointer region returns none begin
@@ -174,8 +283,14 @@ end function
 function move_cursor_left of text_region pointer region returns none begin
 	if region.cursor_x = 0 then
 		-- no space, wrap back
-		region.cursor_x gets region.screen_width - 1;
 		call move_cursor_up with region;
+		
+		variable lx is u8 gets (call line_last_char_x with region);
+		--if lx < (region.screen_width - 1) then
+		--	lx gets lx + 1;
+		--end if
+		
+		region.cursor_x gets lx;
 	else
 		-- space available, just move
 		region.cursor_x gets region.cursor_x - 1;
@@ -265,4 +380,5 @@ function set_term_area of text_region pointer region begin
 		region.screen_origin_y,
 		region.screen_origin_x + region.screen_width - 1,
 		region.screen_origin_y + region.screen_height;
+	call _termutil.set_pos with region.cursor_x + region.screen_origin_x, region.cursor_y + region.screen_origin_y;
 end function

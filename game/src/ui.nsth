@@ -17,7 +17,10 @@ library _editor from "editor/editor";
 type interface_data is structure of
 	region_code_editor is text_region pointer,
 	region_dictionary is text_region pointer,
-	region_notes is text_region pointer
+	region_notes is text_region pointer,
+	region_code_output is text_region pointer,
+	
+	fword_game_update is ptr
 end type
 
 -- Run the interface
