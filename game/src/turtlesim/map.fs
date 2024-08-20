@@ -3,12 +3,12 @@
 32 CONSTANT MAP-SIZE 
 
 \ LIST OF TILE TYPES 
-\ 0 CLEAR 
-\ 1 IMPASSABLE
-\ 2 METAL 
-\ 3 FUEL 
-\ 4 ARTIFACT
-\ 5 ACID
+0 CONSTANT TID-CLEAR 
+1 CONSTANT TID-IMPASSABLE 
+2 CONSTANT TID-METAL 
+3 CONSTANT TID-FUEL 
+4 CONSTANT TID-ARTIFACT 
+5 CONSTANT TID-ACID 
 
 6 CONSTANT TILE-TYPE-COUNT
 
@@ -31,17 +31,31 @@
 \ its forth word 
 \ 
 
+VARIABLE T-SPRITEIDS TILE-TYPE-COUNT CELLS ALLOT 
+VARIABLE T-WORDS     TILE-TYPE-COUNT CELLS ALLOT 
+VARIABLE T-IMPASSABLE TILE-TYPE-COUNT CELLS ALLOT 
+
+: GET-TYPE-SPRITEID ( type -- int )
+     CELLS T-SPRITEIDS + ;
+: GET-TYPE-WORD ( type -- int )
+     CELLS T-WORDS + ;
+: GET-TYPE-IMPASSABLE ( type -- bool )
+     CELLS T-IMPASSABLE + ;
 
 
 \ set information about a tile type 
-: !TILETYPE ( id word passable isdiscovery -- )
+: SET-TILETYPE ( index word passable -- ) \ we can do IsDiscovery later, for now just checks type like metal/fuel
 
 ;
 
 \ define the data about the types of tiles 
 : DEFINE-TILES 
-
-
+    0 0 TRUE SET-TILETYPE 
+    1 1 FALSE SET-TILETYPE 
+    2 2 TRUE SET-TILETYPE
+    3 3 TRUE SET-TILETYPE
+    4 4 TRUE SET-TILETYPE
+    5 5 TRUE SET-TILETYPE
 ;
 
 
@@ -105,7 +119,12 @@ VARIABLE +COORDY
 \ stores a fake 2d array (via pointer math) of ints representing the tile type 
 VARIABLE MAP MAP-SIZE 2 * CELLS ALLOT
 
-: SET-TILE-TYPEID 
+\ int representing type index to use looking up data about the type 
+: GET-TILE-TYPEID ( x y -- int )
+    
+;
+
+: SET-TILE-TYPEID ( id x y -- )
 
 ;
 
@@ -113,25 +132,25 @@ VARIABLE MAP MAP-SIZE 2 * CELLS ALLOT
 
 ;
 
-\ int representing type index to use looking up data about the type 
-: GET-TILE-TYPEID ( x y -- int )
-    
-;
+
 
 \ get tile by position, will return null if out of range 
-: GET-TILE ( x y -- tile )
-
-;
+\ : GET-TILE ( x y -- tile )
+\ ;
 
 : IS-PASSABLE ( x y -- bool )
-    \ is the tile at the given coordinates passable? returns true if so 
+    \ is the tile at the given coordinates passable? returns true if so
+    GET-TILE-TYPEID TYPE[]PASSABLE
 ;
 
 \ is there something on the tile of the given coordinates
 : IS-METAL-ON-TILE ( x y -- bool )
-
+    
 ;
 : IS-FUEL-ON-TILE ( x y -- bool )
+
+;
+: IS-DISCOVERY ( x y -- bool )
 
 ;
 
@@ -139,13 +158,17 @@ VARIABLE MAP MAP-SIZE 2 * CELLS ALLOT
 \ for picking things up from a given tile 
 : REMOVE-FUEL-TILE ( x y -- )
     \ remove the fuel on a tile of the given coordinates
+    TID-CLEAR SET-TILE-TYPEID 
 ;
 : REMOVE-METAL-TILE ( x y -- )
     \ remove the metal on a tile of the given coordinates
+    TID-CLEAR SET-TILE-TYPEID
 ;
+
+
 
 \ return the number referring to a sprite according to the dictionary sprite-dictionary.txt given an x y coordinate representing the position of the tile
 \ returns 0 if undiscovered, which corresponds to the undiscovered sprite 
 : GET-TILE-SPRITE-ID ( x y -- id ) 
-
+    GET-TILE-TYPEID GET-TYPE-SPRITEID
 ;

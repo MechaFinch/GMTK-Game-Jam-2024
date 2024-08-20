@@ -190,13 +190,13 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 ;
 
 : FAILED-CREATE-TURTLE-METAL
-    ."Not enough METAL! " CR
+    ." Not enough METAL! " CR
 ;
 : FAILED-CREATE-TURTLE-FUEL
-    ."Not enough FUEL! " CR
+    ." Not enough FUEL! " CR
 ;
 : FAILED-CREATE-TURTLE-COUNTLIMIT
-    ."Maximum probes reached! " CR
+    ." Maximum probes reached! " CR
 ;
 
 : TRY-CREATE-TURTLE ( -- )
@@ -292,12 +292,6 @@ VARIABLE MOVING-TO-Y
     FORWARD
     MOVING-TO-Y ! 
     MOVING-TO-X !
-
-    \ TURTLES[CURRENT].X MOVING-TO-X !
-    \ TURTLES[CURRENT].DIRECTION.X MOVING-TO-X +!
-
-    \ TURTLES[CURRENT].Y MOVING-TO-Y !
-    \ TURTLES[CURRENT].DIRECTION.Y MOVING-TO-Y +!
 
     \ VALIDATE-COORDINATES of what direction it's trying to move in
     MOVING-TO-X MOVING-TO-Y VALIDATE-COORDINATES IF 
