@@ -17,8 +17,9 @@
 \ our equivalent of any game engine's update
 : GAME-UPDATE 
 
-    \ run the code for the turtle at index TURTLE-TURNTAKER ie TICK-TURTLE
+    \ run the code for the turtle at the current turtle index
     RUN-PLAYER-CODE
+    TICK-TURTLE
 
     \ increment the counter
     CURRENT-TURTLE++

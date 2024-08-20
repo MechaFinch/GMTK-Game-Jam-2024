@@ -62,13 +62,6 @@ Relative to the direction the Turtle is facing:
 
 These Direction constants come in the form X Y where X and Y are integers and NORTH is 0 1.
 
-Material identified as useful resources: 
-- METAL 
-- FUEL 
-
-Material identified as crucial to the research mission: 
-- ARTIFACT
-
 
 Moving your Turtle 
 ------------------
@@ -92,6 +85,24 @@ Exploring the World
 Returns an interpretation of what is in front of the Turtle as a Word, based on the direction it's facing. If this is an ARTIFACT, it will automatically be fully scanned and the information \[unrecoverable]. This is the goal of this research mission.
 
 In addition to these commands, as your Turtles explore the surface, they'll come up with new Words for things they discover, just like how they come with words for METAL and FUEL. These will be added to your Dictionary as new forms are encountered with EXAMINE-AHEAD.
+
+
+Interpreting the Environment 
+----------------------------
+
+Material identified as useful resources: 
+- METAL 
+- FUEL 
+
+Material identified as crucial to the research mission: 
+- ARTIFACT
+
+Additional words for navigation: 
+- CLEAR 
+- IMPASSABLE 
+- ACID 
+
+All of these words might be returned by EXAMINE-AHEAD and can be compared. We really just keep an integer table of these.
 
 
 Collection of Resources 

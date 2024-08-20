@@ -274,7 +274,7 @@ VARIABLE CURRENT-TURTLE-INDEX-STORAGE
 ;
 
 : FAILED-INVALID-COORDINATES 
-    ." Could not move forward into a harsh mist! " CR
+    ." Could not move forward into an impenetrable mist! " CR
 ;
 
 : FAILED-IMPASSABLE 
@@ -368,11 +368,17 @@ VARIABLE MOVING-TO-Y
 ;
 \ if it's fuel or metal, it gets added 
 
-: TURTLE-DIES 
-    \ TODO 
+: TURTLE-DIES ( index --  )
+
+    \ set inactive 
+    FALSE TURTLES[].INACTIVE !
+
+    TURTLE-COUNT--
+    ." A Turtle perished! " CR
     CHECK-GAMEOVER 
 ;
 
+\ check if current turtle should die 
 : CHECK-TURTLE-DEATH 
 
 ;
@@ -384,7 +390,8 @@ VARIABLE MOVING-TO-Y
 
 \ run the logic of a turtle 
 : TICK-TURTLE
-    \
+    
+    CHECK-TURTLE-DEATH
 ;
 
 

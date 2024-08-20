@@ -2,6 +2,16 @@
 
 32 CONSTANT MAP-SIZE 
 
+\ LIST OF TILE TYPES 
+\ 0 CLEAR 
+\ 1 IMPASSABLE
+\ 2 METAL 
+\ 3 FUEL 
+\ 4 ARTIFACT
+\ 5 ACID
+
+6 CONSTANT TILE-TYPE-COUNT
+
 \ a tile stores 
 \ its forth word 
 \ its written description 
@@ -16,24 +26,27 @@
 \ goes to arrays of information about a tile type 
 \ yet again I am using the flyweight pattern for a tile system 
 
-\ define the data about the types of tiles 
-: DEFINE-TILES ;
+
+\ more parallel arrays of info 
+\ its forth word 
+\ 
 
 
 
-
-
-
-
+\ set information about a tile type 
 : !TILETYPE ( id word passable isdiscovery -- )
 
 ;
 
+\ define the data about the types of tiles 
+: DEFINE-TILES 
 
-\ define the map 
-\ TODO we can generate this if time allows 
-\ stores a fake 2d array (via pointer math) of ints representing the tile type 
-: MAP ;
+
+;
+
+
+
+
 
 \ directions relative to world 
 0 CONSTANT NORTH-X 
@@ -87,9 +100,22 @@ VARIABLE +COORDY
     THEN 
 ;
 
+\ define the map 
+\ TODO we can generate this if time allows 
+\ stores a fake 2d array (via pointer math) of ints representing the tile type 
+VARIABLE MAP MAP-SIZE 2 * CELLS ALLOT
+
+: SET-TILE-TYPEID 
+
+;
+
+: INIT-MAP 
+
+;
+
 \ int representing type index to use looking up data about the type 
 : GET-TILE-TYPEID ( x y -- int )
-
+    
 ;
 
 \ get tile by position, will return null if out of range 
