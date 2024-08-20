@@ -81,6 +81,9 @@ function main of none begin
 	constant str_turtle_get_active is string gets "TURTLES[].ISACTIVE";
 	variable fw_turtle_get_active is ptr gets (call _fs.find with to str_turtle_get_active, sizeof str_turtle_get_active);
 	
+	constant str_fuel_win is string gets "FUEL-TO-WIN";
+	variable fw_fuel_win is ptr gets (call _fs.find with to str_fuel_win, sizeof str_fuel_win);
+	
 	-- Hide words
 	call _fs.hide_words with none;
 	
@@ -95,7 +98,7 @@ function main of none begin
 		region_notes gets (call _editor.create_region with 24, 15, 13, 11, 32),
 		region_code_output gets (call _editor.create_region with 7, 3, 26, 20, 0),		-- terminal output area
 		region_turtle_output gets (call _editor.create_region with 13, 16, 25, 9, 0),	-- terminal output area
-		region_resources gets (call _editor.create_region with 30, 2, 8, 10, 0),		-- terminal output area
+		region_resources gets (call _editor.create_region with 30, 2, 8, 12, 0),		-- terminal output area
 		
 		fword_game_update gets fw_game_update,
 		fword_compile_editor gets fw_compile_editor,
@@ -108,7 +111,8 @@ function main of none begin
 		fword_metal_count gets fw_metal_count,
 		fword_disco_count gets fw_disco_count,
 		fword_max_turtles gets fw_max_turtles,
-		fword_turtle_get_active gets fw_turtle_get_active
+		fword_turtle_get_active gets fw_turtle_get_active,
+		fword_fuel_win gets fw_fuel_win
 	end structure;
 	
 	-- TODO: Init sprite tables
