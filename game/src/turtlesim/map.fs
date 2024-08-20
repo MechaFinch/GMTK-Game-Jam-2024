@@ -34,12 +34,12 @@ VARIABLE +COORDY
     +COORDX ! 
     +COORDY +!
     +COORDX +! 
-    +COORDX +COORDY
+    +COORDX @ +COORDY @
 ;
 
 \ is a single coordinate within the size of the map?
 : VALIDATE-COORDINATE ( x -- bool )
-    MAP-SIZE <= IF 
+    MAP-SIZE @ <= IF 
         TRUE
     ELSE 
         FALSE
@@ -90,7 +90,7 @@ VARIABLE +COORDY
 
 VARIABLE T-SPRITEIDS TILE-TYPE-COUNT CELLS ALLOT 
 VARIABLE T-WORDS     TILE-TYPE-COUNT CELLS ALLOT 
-VARIABLE T-PASSABLE TILE-TYPE-COUNT CELLS ALLOT 
+VARIABLE T-PASSABLE  TILE-TYPE-COUNT CELLS ALLOT 
 
 : GET-TYPE-SPRITEID ( type -- int )
      CELLS T-SPRITEIDS + ;
@@ -122,12 +122,12 @@ VARIABLE S-T-INDEX
 
 \ define the data about the types of tiles 
 : DEFINE-TILES 
-    TID-CLEAR     TRUE  TSPR-CLEAR          SET-TILETYPE 
-    TID-PASSABLE  FALSE TSPR-PASSABLE    SET-TILETYPE 
-    TID-METAL     TRUE  TSPR-METAL          SET-TILETYPE
-    TID-FUEL      TRUE  TSPR-FUEL           SET-TILETYPE
-    TID-ARTIFACT  TRUE  TSPR-ARTIFACT       SET-TILETYPE
-    TID-ACID      TRUE  TSPR-ACID           SET-TILETYPE
+    TID-CLEAR @     TRUE  TSPR-CLEAR @          SET-TILETYPE 
+    TID-PASSABLE @  FALSE TSPR-PASSABLE @       SET-TILETYPE 
+    TID-METAL @     TRUE  TSPR-METAL @          SET-TILETYPE
+    TID-FUEL @      TRUE  TSPR-FUEL @           SET-TILETYPE
+    TID-ARTIFACT @  TRUE  TSPR-ARTIFACT @       SET-TILETYPE
+    TID-ACID @      TRUE  TSPR-ACID @           SET-TILETYPE
 ;
 
 
@@ -168,7 +168,7 @@ VARIABLE STIDV
         I
         MAP-SIZE 0 DO 
             DUP 
-            I TID-IMPASSABLE SET-TILE-TYPEID
+            I TID-IMPASSABLE @ SET-TILE-TYPEID
         LOOP
     LOOP 
 
@@ -179,16 +179,16 @@ VARIABLE STIDV
             DUP 
             I 
             \ choose a type 
-            TID-CLEAR SET-TILE-TYPEID
+            TID-CLEAR @ SET-TILE-TYPEID
         LOOP
     LOOP 
 
     \ TODO we can make this random as well with variables 
     \ set artifacts 
-    3 13 TID-ARTIFACT SET-TILE-TYPEID 
-    11 14 TID-ARTIFACT SET-TILE-TYPEID 
-    7 7 TID-ARTIFACT SET-TILE-TYPEID
-    18 9 TID-ARTIFACT SET-TILE-TYPEID
+    3 13 TID-ARTIFACT @ SET-TILE-TYPEID 
+    11 14 TID-ARTIFACT @ SET-TILE-TYPEID 
+    7 7 TID-ARTIFACT @ SET-TILE-TYPEID
+    18 9 TID-ARTIFACT @ SET-TILE-TYPEID
 
     \ set everything around artifacts to clear to make it easier 
     \ TODO 
@@ -207,26 +207,26 @@ VARIABLE STIDV
 
 : IS-PASSABLE ( x y -- bool )
     \ is the tile at the given coordinates passable? returns true if so
-    GET-TILE-TYPEID GET-TYPE-PASSABLE
+    GET-TILE-TYPEID @ GET-TYPE-PASSABLE
 ;
 
 \ is there something on the tile of the given coordinates
 : IS-METAL-ON-TILE ( x y -- bool )
-    GET-TILE-TYPEID TID-METAL = IF 
+    GET-TILE-TYPEID @ TID-METAL @ = IF 
         TRUE 
     ELSE 
         FALSE 
     THEN
 ;
 : IS-FUEL-ON-TILE ( x y -- bool )
-    GET-TILE-TYPEID TID-FUEL = IF 
+    GET-TILE-TYPEID @ TID-FUEL @ = IF 
         TRUE 
     ELSE 
         FALSE 
     THEN
 ;
 : IS-ARTIFACT ( x y -- bool )
-    GET-TILE-TYPEID TID-ARTIFACT = IF 
+    GET-TILE-TYPEID @ TID-ARTIFACT @ = IF 
         TRUE 
     ELSE 
         FALSE 
@@ -249,8 +249,8 @@ VARIABLE GTSID-Y
     GTSID-X ! 
 
     \ first get if the tile has been discovered 
-    GTSID-X GTSID-Y IS-DISCOVERED IF 
-        GTSID-X GTSID-Y GET-TILE-TYPEID GET-TYPE-SPRITEID
+    GTSID-X @ GTSID-Y @ IS-DISCOVERED IF 
+        GTSID-X @ GTSID-Y @ GET-TILE-TYPEID GET-TYPE-SPRITEID
     ELSE 
         TSPR-UNDISCOVERED
     THEN
